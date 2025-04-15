@@ -1,6 +1,6 @@
-import express from 'express'; // Change require to import
-import mysql from 'mysql2';    // Change require to import
-import fs from 'fs';           // Change require to import
+import express from 'express';
+import mysql from 'mysql2';
+import fs from 'fs';      
 
 const app = express();
 app.use(express.json());
@@ -29,7 +29,7 @@ db.connect((err) => {
         }
         console.log('Database created or already exists.');
 
-        // Now use the database
+        // Use finalproject as the databse
         db.changeUser({ database: 'finalproject' }, (err) => {
             if (err) {
                 console.error('Error selecting database:', err);
@@ -37,31 +37,35 @@ db.connect((err) => {
             }
             console.log('Using the database!');
 
-            // Execute the SQL script to create tables
             createTables();
         });
     });
 });
 
-// Function to execute the SQL file to create tables
+// Executes SQL script to create the tables
 function createTables() {
     const sqlFilePath = './database_tables.sql';
 
-    // Read the SQL file and execute its contents
-    fs.readFile(sqlFilePath, 'utf8', (err, sql) => {
+    fs.readFile(sqlFilePath, 'utf8', (err, sqlContent) => {
         if (err) {
             console.error('Error reading the SQL file:', err);
             return;
         }
-
-        // Run the SQL script to create tables
-        db.query(sql, (err, result) => {
-            if (err) {
-                console.error('Error creating tables:', err);
-            } else {
-                // Log result to ensure query completed
-                console.log('Tables created successfully!');
-                console.log('Result:', result); // This should be empty for CREATE TABLE but can be useful for debugging
+        
+        // Split the SQL content into individual statements
+        const statements = sqlContent.split(';').filter(stmt => stmt.trim() !== '');
+        
+        // Execute each statement separately
+        statements.forEach(statement => {
+            if (statement.trim()) {
+                db.query(statement, (err, result) => {
+                    if (err) {
+                        console.error('Error executing statement:', statement);
+                        console.error('Error details:', err);
+                    } else {
+                        console.log('Statement executed successfully');
+                    }
+                });
             }
         });
     });

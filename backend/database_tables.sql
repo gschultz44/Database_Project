@@ -51,6 +51,7 @@ CREATE TABLE Field (
     field_id INT NOT NULL PRIMARY KEY,
     project_name VARCHAR(100) NOT NULL,
     field_name VARCHAR(100) NOT NULL,
+    UNIQUE KEY (field_id, project_name),
     FOREIGN KEY (project_name) REFERENCES Project(project_name) ON DELETE CASCADE
 );
 

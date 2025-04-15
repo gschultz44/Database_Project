@@ -3,9 +3,9 @@ const mysql = require('mysql2');
 // Set up MySQL connection
 const db = mysql.createConnection({
     host: 'localhost',
-    user: 'root',  // Default MySQL username
-    password: '',  // Password (leave empty if no password is set)
-    database: 'finalproject' , // Replace with your database name
+    user: 'root', 
+    password: '', 
+    database: 'finalproject' ,
     multipleStatements: true,
     charset: 'utf8mb4'
 });
@@ -19,4 +19,4 @@ db.connect((err) => {
     }
 });
 
-module.exports = db; // Export the db connection to use in other files
+module.exports = db; // Export db connection to use in other files
