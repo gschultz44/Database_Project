@@ -5,6 +5,9 @@ import ProjectEntry from './pages/ProjectEntry';
 import PostEntry from './pages/PostEntry';
 import UserEntry from './pages/UserEntry';
 import AnalysisEntry from './pages/AnalysisEntry';
+import QueryPosts from './pages/QueryPosts';
+import QueryProjects from './pages/QueryProjects';
+import ProjectAnalytics from './pages/ProjectAnalytics';
 
 function App() {
   const [activePage, setActivePage] = useState('home');
@@ -47,7 +50,7 @@ function App() {
         return (
           <div className="page-container home-page">
             <div className="hero-section">
-              <h1 className="hero-title">Project Name</h1>
+              <h1 className="hero-title">Media Trackr</h1>
               <p className="hero-description">Collect, organize, and analyze social media data</p>
             </div>
 
@@ -77,7 +80,8 @@ function App() {
                     </div>
                   )}
                 </div>
-                <div className="feature-card">
+                {/* Project Analytics card */}
+                <div className="feature-card" onClick={() => navigateTo('projectAnalytics')}>
                   <div className="feature-icon">📊</div>
                   <h3 className="feature-title">Project Analytics</h3>
                   <p>View statistics and completion metrics for your projects</p>
@@ -94,6 +98,12 @@ function App() {
         return <UserEntry />;
       case 'analysisEntry':
         return <AnalysisEntry />;
+      case 'postQuery':
+        return <QueryPosts />;
+      case 'projectQuery':
+        return <QueryProjects />;
+      case 'projectAnalytics': 
+        return <ProjectAnalytics />;
       default:
         return (
           <div className="page-container error-page">
