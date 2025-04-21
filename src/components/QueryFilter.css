@@ -1,0 +1,137 @@
+.query-filter-container {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    margin-bottom: 30px;
+  }
+  
+  .query-filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  .filter-section {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+  }
+  
+  .filter-section:last-child {
+    border-bottom: none;
+  }
+  
+  .filter-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #333;
+  }
+  
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .filter-group {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .filter-group label {
+    font-weight: 500;
+    color: #555;
+    font-size: 0.9em;
+  }
+  
+  .filter-group input,
+  .filter-group select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95em;
+    background-color: #f9f9f9;
+  }
+  
+  .filter-group input:focus,
+  .filter-group select:focus {
+    outline: none;
+    border-color: #4e9af1;
+    box-shadow: 0 0 0 2px rgba(78, 154, 241, 0.2);
+  }
+  
+  .filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 10px;
+  }
+  
+  .primary-button {
+    background-color: #4e9af1;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .primary-button:hover {
+    background-color: #1c71ff;
+  }
+  
+  .primary-button:disabled {
+    background-color: #b3c7e6;
+    cursor: not-allowed;
+  }
+  
+  .secondary-button {
+    background-color: #f1f3f5;
+    color: #333;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .secondary-button:hover {
+    background-color: #e9ecef;
+    border-color: #ccc;
+  }
+  
+  .secondary-button:disabled {
+    background-color: #f8f9fa;
+    border-color: #eee;
+    color: #aaa;
+    cursor: not-allowed;
+  }
+  
+  .error-text {
+    color: #e74c3c;
+    font-size: 0.85em;
+    margin-top: 4px;
+  }
+  
+  .date-error {
+    margin-top: 5px;
+    text-align: center;
+  }
+  
+  @media (max-width: 768px) {
+    .filter-row {
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .filter-group {
+      width: 100%;
+    }
+  }
