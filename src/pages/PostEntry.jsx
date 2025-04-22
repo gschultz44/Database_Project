@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PostForm from '../components/PostForm';
 import './styling/PostEntry.css';
 
 export default function PostEntry() {
