@@ -1,42 +1,129 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* General Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f7f7f7;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #4e9af1, #1c71ff);
+  padding: 40px 20px;
+  text-align: center;
+  color: white;
+}
+
+.hero-title {
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.hero-description {
+  font-size: 1.2em;
+  margin-top: 10px;
+  font-weight: 400;
+}
+
+/* Feature Cards */
+.features-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.feature-cards {
+  display: flex;
+  gap: 30px;
+}
+
+.feature-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 200px;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.feature-icon {
+  font-size: 2em;
+}
+
+.feature-title {
+  margin-top: 10px;
+  font-size: 1.5em;
+}
+
+.submenu {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.submenu-item {
+  background-color: #4e9af1;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submenu-item:hover {
+  background-color: #1c71ff;
+}
+
+.primary-button {
+  background-color: #4e9af1;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 8px;
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.primary-button:hover {
+  background-color: #1c71ff;
+}
+
+/* Other Styles */
+.page-container {
+  padding: 30px;
+}
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+.error-page {
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.error-page h1 {
+  font-size: 4em;
+  color: #e74c3c;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.error-page p {
+  font-size: 1.2em;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.main-content {
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
