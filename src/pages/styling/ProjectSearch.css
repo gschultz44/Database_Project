@@ -1,0 +1,336 @@
+.search-page {
+    max-width: 1200px;
+    margin: 40px auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .search-header {
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  .search-header h1 {
+    font-size: 2em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .search-header p {
+    font-size: 1em;
+    color: #666;
+  }
+  
+  .search-container {
+    display: flex;
+    gap: 30px;
+  }
+  
+  /* Filters sidebar */
+  .search-filters {
+    flex: 0 0 300px;
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .search-filters h2 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-weight: bold;
+  }
+  
+  .filter-group {
+    margin-bottom: 20px;
+  }
+  
+  .filter-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #444;
+  }
+  
+  /* Input Styling */
+  .filter-group input,
+  .filter-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+  }
+  
+  .filter-group input:focus,
+  .filter-group select:focus {
+    border-color: #4e9af1;
+    outline: none;
+  }
+  
+  .date-inputs {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .date-inputs input {
+    flex: 1;
+  }
+  
+  .sort-controls {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .sort-controls select {
+    flex: 1;
+  }
+  
+  /* Button Styling */
+  .filter-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+  }
+  
+  .primary-button {
+    background-color: #4e9af1;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .primary-button:hover {
+    background-color: #1c71ff;
+  }
+  
+  .secondary-button {
+    background-color: white;
+    color: #4e9af1;
+    padding: 15px 30px;
+    border-radius: 8px;
+    border: 1px solid #4e9af1;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .secondary-button:hover {
+    background-color: #f2f7fd;
+  }
+  
+  .export-section {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+  }
+  
+  .export-button {
+    display: block;
+    text-align: center;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .export-button:hover {
+    background-color: #eef2f7;
+    color: #4e9af1;
+  }
+  
+  /* Results area */
+  .search-results {
+    flex: 1;
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .results-header {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .results-header h2 {
+    font-size: 1.5em;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 0;
+  }
+  
+  .loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4e9af1;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .no-results {
+    text-align: center;
+    padding: 50px 0;
+    color: #666;
+  }
+  
+  .results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .result-card {
+    padding: 20px;
+    border-radius: 8px;
+    background-color: white;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .result-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .result-card.positive {
+    border-left: 4px solid #4caf50;
+  }
+  
+  .result-card.neutral {
+    border-left: 4px solid #9e9e9e;
+  }
+  
+  .result-card.negative {
+    border-left: 4px solid #f44336;
+  }
+  
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .result-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+    font-weight: 600;
+  }
+  
+  .sentiment-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+  
+  .sentiment-badge.positive {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: #2e7d32;
+  }
+  
+  .sentiment-badge.neutral {
+    background-color: rgba(158, 158, 158, 0.15);
+    color: #616161;
+  }
+  
+  .sentiment-badge.negative {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: #c62828;
+  }
+  
+  .result-meta {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 12px;
+    color: #666;
+    font-size: 0.9em;
+  }
+  
+  .result-meta .date,
+  .result-meta .category,
+  .result-meta .engagement {
+    display: flex;
+    align-items: center;
+  }
+  
+  .result-meta .category {
+    text-transform: capitalize;
+  }
+  
+  .result-content {
+    color: #555;
+    line-height: 1.5;
+    margin: 0;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 900px) {
+    .search-container {
+      flex-direction: column;
+    }
+    
+    .search-filters {
+      flex: none;
+      width: auto;
+      margin-bottom: 20px;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .search-page {
+      padding: 15px;
+    }
+    
+    .search-filters,
+    .search-results {
+      padding: 20px;
+    }
+    
+    .date-inputs,
+    .sort-controls,
+    .filter-buttons {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .primary-button,
+    .secondary-button {
+      width: 100%;
+    }
+  }

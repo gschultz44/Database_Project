@@ -7,7 +7,7 @@ import UserEntry from './pages/UserEntry';
 import AnalysisEntry from './pages/AnalysisEntry';
 import QueryPosts from './pages/QueryPosts';
 import QueryProjects from './pages/QueryProjects';
-import ProjectAnalytics from './pages/ProjectAnalytics';
+import ProjectSearch from './pages/ProjectSearch';
 
 function App() {
   const [activePage, setActivePage] = useState('home');
@@ -81,7 +81,7 @@ function App() {
                   )}
                 </div>
                 {/* Project Analytics card */}
-                <div className="feature-card" onClick={() => navigateTo('projectAnalytics')}>
+                <div className="feature-card" onClick={() => navigateTo('projectSearch')}>
                   <div className="feature-icon">📊</div>
                   <h3 className="feature-title">Project Analytics</h3>
                   <p>View statistics and completion metrics for your projects</p>
@@ -102,8 +102,8 @@ function App() {
         return <QueryPosts />;
       case 'projectQuery':
         return <QueryProjects />;
-      case 'projectAnalytics': 
-        return <ProjectAnalytics />;
+      case 'projectSearch': 
+        return <ProjectSearch />;
       default:
         return (
           <div className="page-container error-page">
