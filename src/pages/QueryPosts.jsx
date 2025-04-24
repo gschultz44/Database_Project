@@ -10,6 +10,7 @@ const QueryPosts = () => {
     last_name: '',
     start_date: '',
     end_date: '',
+    multimediaType: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -18,8 +19,24 @@ const QueryPosts = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const validateDates = () => {
+    if (formData.start_date && formData.end_date) {
+      const startDate = new Date(formData.start_date);
+      const endDate = new Date(formData.end_date);
+      
+      if (endDate < startDate) {
+        alert("End date cannot be before start date");
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateDates()) {
+      return;
+    }
     setLoading(true);
     try {
       const response = await fetch('http://localhost:5000/query-posts', {
@@ -42,6 +59,20 @@ const QueryPosts = () => {
       <h1 className="page-title">Query Social Media Posts</h1>
       <form className="query-form" onSubmit={handleSubmit}>
         <input name="media" placeholder="Social Media (e.g., Facebook)" onChange={handleChange} value={formData.media} />
+        {/* added drop down */}
+        <select 
+            name="multimediaType" 
+            onChange={handleChange} 
+            value={formData.multimediaType}
+            className="input-field"
+          >
+            <option value="">All Multimedia Types</option>
+            <option value="image">Image</option>
+            <option value="video">Video</option>
+            <option value="text">Text</option>
+            <option value="other">Other</option>
+        </select>
+        <input name="username" placeholder="Username" onChange={handleChange} value={formData.username} />
         <input name="username" placeholder="Username" onChange={handleChange} value={formData.username} />
         <input name="first_name" placeholder="First Name" onChange={handleChange} value={formData.first_name} />
         <input name="last_name" placeholder="Last Name" onChange={handleChange} value={formData.last_name} />
@@ -53,7 +84,9 @@ const QueryPosts = () => {
         {posts.length > 0 && posts.map((post, index) => (
           <div className="post-card" key={index}>
             <p className="post-text">{post.text}</p>
-            <p className="post-info">{post.media} | {post.username} | {new Date(post.time_posted).toLocaleString()}</p>
+            <p className="post-info">{post.media} | {post.username} | {new Date(post.time_posted).toLocaleString()}
+            {post.multimediaType && ` | Type: ${post.multimediaType}`}
+            </p>
             {post.projects && post.projects.length > 0 && (
               <div className="project-section">
                 <p className="project-header">Projects Analyzed:</p>

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import PostForm from '../components/PostForm';
 import './styling/PostEntry.css';
 
 export default function PostEntry() {
@@ -12,6 +11,7 @@ export default function PostEntry() {
   const [likes, setLikes] = useState(""); // Likes metadata
   const [dislikes, setDislikes] = useState(""); // Dislikes metadata
   const [multimedia, setMultimedia] = useState(""); // Multimedia URL metadata
+  const [multimediaType, setMultimediaType] = useState(""); // New state for multimedia type
   const [repostId, setRepostId] = useState(""); // Repost functionality
 
   const validatePostDate = () => {
@@ -55,7 +55,8 @@ export default function PostEntry() {
       !trimmedLocation ||
       !trimmedLikes ||
       !trimmedDislikes ||
-      !trimmedMultimedia
+      !trimmedMultimedia ||
+      !multimediaType // Added validation for multimedia type
     ) {
       alert("Please fill out all required fields.");
       return;
@@ -65,6 +66,46 @@ export default function PostEntry() {
       alert("Please enter a valid post date.");
       return;
     }
+
+      // Validate multimedia URL based on selected type
+    if (trimmedMultimedia) {
+      let isValidUrl = true;
+      
+      try {
+        new URL(trimmedMultimedia);
+      } catch (_) {
+        isValidUrl = false;
+      }
+      
+      if (!isValidUrl) {
+        alert("Please enter a valid URL for multimedia content.");
+        return;
+      }
+      
+      // Additional type-specific validation
+      if (multimediaType === "image") {
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+        const hasValidExtension = imageExtensions.some(ext => 
+          trimmedMultimedia.toLowerCase().endsWith(ext)
+        );
+        
+        if (!hasValidExtension) {
+          alert("Please provide a valid image URL (jpg, jpeg, png, gif, or webp).");
+          return;
+        }
+      } else if (multimediaType === "video") {
+        const videoExtensions = ['.mp4', '.webm', '.mov', '.avi'];
+        const hasValidExtension = videoExtensions.some(ext => 
+          trimmedMultimedia.toLowerCase().endsWith(ext)
+        );
+        
+        if (!hasValidExtension) {
+          alert("Please provide a valid video URL (mp4, webm, mov, or avi).");
+          return;
+        }
+      }
+    }
+
 
     const userExists = await validateUserExistence(trimmedUserId);
     if (!userExists) return;
@@ -103,6 +144,7 @@ export default function PostEntry() {
       likes: parseInt(trimmedLikes),
       dislikes: parseInt(trimmedDislikes),
       multimedia: trimmedMultimedia,
+      multimediaType, // Added multimedia type to post data
       repostId: trimmedRepostId ? trimmedRepostId : null,
     };
 
@@ -124,6 +166,7 @@ export default function PostEntry() {
         setLikes("");
         setDislikes("");
         setMultimedia("");
+        setMultimediaType(""); // Reset multimedia type
         setRepostId(""); // Reset repost ID after submission
       } else {
         alert("Failed to submit post.");
@@ -224,6 +267,21 @@ export default function PostEntry() {
             className="input-field"
             placeholder="Number of Dislikes"
           />
+        </div>
+        <div className="form-group">
+          <label>Multimedia Type</label>
+          <select
+            value={multimediaType}
+            onChange={(e) => setMultimediaType(e.target.value)}
+            required
+            className="input-field"
+          >
+            <option value="">Select multimedia type</option>
+            <option value="image">Image</option>
+            <option value="video">Video</option>
+            <option value="text">Text</option>
+            <option value="other">Other</option>
+          </select>
         </div>
         <div className="form-group">
           <label>Multimedia URL</label>
