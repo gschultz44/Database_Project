@@ -40,7 +40,7 @@ export default function ProjectEntry() {
     const trimmedManagerLast = projectManagerLastName.trim();
     const trimmedInstitute = instituteName.trim();
 
-    if (!trimmedProjectName || !trimmedProjectDescription || !trimmedManagerFirst || !trimmedManagerLast || !trimmedInstitute || !startDate || !endDate || !status) {
+    if (!trimmedProjectName || !trimmedManagerFirst || !trimmedManagerLast || !trimmedInstitute || !startDate || !endDate || !status) {
       alert("Please fill out all required fields.");
       return;
     }
@@ -107,13 +107,12 @@ export default function ProjectEntry() {
           />
         </div>
         <div className="form-group">
-          <label>Project Description<span className="required-asterisk">*</span></label>
+          <label>Project Description</label>
           <textarea
             value={projectDescription}
             onChange={(e) => setProjectDescription(e.target.value)}
-            required
             className="input-field"
-            placeholder="Enter Project Description"
+            placeholder="Enter Project Description (optional)"
           />
         </div>
         <div className="form-group">
@@ -166,7 +165,7 @@ export default function ProjectEntry() {
             className="input-field"
           />
         </div>
-        <div className="form-group">
+        {/* <div className="form-group">
           <label>Status<span className="required-asterisk">*</span></label>
           <select
             value={status}
@@ -180,7 +179,7 @@ export default function ProjectEntry() {
             <option value="On Hold">On Hold</option>
             <option value="Cancelled">Cancelled</option>
           </select>
-        </div>
+        </div> */}
         <div className="form-group">
           <button
             onClick={handleSubmit}

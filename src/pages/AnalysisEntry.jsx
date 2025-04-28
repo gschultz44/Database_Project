@@ -94,12 +94,13 @@ export default function AnalysisEntry() {
           />
         </div>
         <div className="form-group">
-          <label>Analysis Type (optional)</label>
+          <label>Username <span style={{ color: 'red' }}>*</span></label>
           <input
-            value={analysisType}
-            onChange={(e) => setAnalysisType(e.target.value)}
+            value={userId}
+            onChange={(e) => setUserId(e.target.value)}
+            required
             className="input-field"
-            placeholder="Enter Analysis Type"
+            placeholder="Enter Username"
           />
         </div>
         <div className="form-group">
@@ -118,16 +119,6 @@ export default function AnalysisEntry() {
             value={analysisDate}
             onChange={(e) => setAnalysisDate(e.target.value)}
             className="input-field"
-          />
-        </div>
-        <div className="form-group">
-          <label>Username <span style={{ color: 'red' }}>*</span></label>
-          <input
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            required
-            className="input-field"
-            placeholder="Enter Username"
           />
         </div>
         <div className="form-group">

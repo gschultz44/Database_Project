@@ -4,8 +4,11 @@ import './styling/UserEntry.css';
 export default function UserEntry() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
   const [countryOfBirth, setCountryOfBirth] = useState("");
   const [countryOfResidence, setCountryOfResidence] = useState("");
+  const [otherCountryOfBirth, setOtherCountryOfBirth] = useState("");
+  const [otherCountryOfResidence, setOtherCountryOfResidence] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
   const [isVerified, setIsVerified] = useState("");
@@ -22,28 +25,43 @@ export default function UserEntry() {
 
     const trimmedFirstName = firstName.trim();
     const trimmedLastName = lastName.trim();
+    const trimmedUsername = username.trim();
 
-    if (!trimmedFirstName || !trimmedLastName || !countryOfBirth || !countryOfResidence || !gender || !isVerified || !age) {
-      alert("Please fill out all required fields.");
+    if (!trimmedUsername) {
+      alert("Username is required.");
       setIsSubmitting(false);
       return;
     }
 
-    if (!validateAge()) {
-      alert("Please enter a valid age.");
+    if (age && !validateAge()) {
+      alert("Please enter a valid age (0-150) if provided.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // If "Other" is selected for country, ensure the respective "Other Country" field is filled out
+    if (countryOfBirth === "Other" && !otherCountryOfBirth) {
+      alert("Please specify your Country of Birth.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (countryOfResidence === "Other" && !otherCountryOfResidence) {
+      alert("Please specify your Country of Residence.");
       setIsSubmitting(false);
       return;
     }
 
     try {
       const userData = {
-        firstName: trimmedFirstName,
-        lastName: trimmedLastName,
-        countryOfBirth,
-        countryOfResidence,
-        age: parseInt(age),
-        gender,
-        isVerified: isVerified === "Yes" ? true : false,
+        firstName: trimmedFirstName || null,
+        lastName: trimmedLastName || null,
+        username: trimmedUsername,
+        countryOfBirth: countryOfBirth === "Other" ? otherCountryOfBirth : countryOfBirth || null,
+        countryOfResidence: countryOfResidence === "Other" ? otherCountryOfResidence : countryOfResidence || null,
+        age: age ? parseInt(age) : null,
+        gender: gender || null,
+        isVerified: isVerified ? isVerified === "Yes" : null,
       };
 
       const response = await fetch("http://localhost:5000/api/user", {
@@ -56,8 +74,11 @@ export default function UserEntry() {
         alert("User submitted successfully!");
         setFirstName("");
         setLastName("");
+        setUsername("");
         setCountryOfBirth("");
         setCountryOfResidence("");
+        setOtherCountryOfBirth("");
+        setOtherCountryOfResidence("");
         setAge("");
         setGender("");
         setIsVerified("");
@@ -91,31 +112,38 @@ export default function UserEntry() {
       <h1 className="hero-title">User Entry</h1>
       <div className="space-y-4">
         <div className="form-group">
-          <label>First Name<span className="required-asterisk">*</span></label>
+          <label>Username<span className="required-asterisk">*</span></label>
+          <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            className="input-field"
+            placeholder="Enter Username"
+          />
+        </div>
+        <div className="form-group">
+          <label>First Name</label>
           <input
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            required
             className="input-field"
             placeholder="Enter First Name"
           />
         </div>
         <div className="form-group">
-          <label>Last Name<span className="required-asterisk">*</span></label>
+          <label>Last Name</label>
           <input
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            required
             className="input-field"
             placeholder="Enter Last Name"
           />
         </div>
         <div className="form-group">
-          <label>Country of Birth<span className="required-asterisk">*</span></label>
+          <label>Country of Birth</label>
           <select
             value={countryOfBirth}
             onChange={(e) => setCountryOfBirth(e.target.value)}
-            required
             className="input-field"
           >
             <option value="">Select Country</option>
@@ -123,13 +151,24 @@ export default function UserEntry() {
               <option key={country} value={country}>{country}</option>
             ))}
           </select>
+          {countryOfBirth === "Other" && (
+            <div className="form-group">
+              <label>Specify Country of Birth<span className="required-asterisk">*</span></label>
+              <input
+                value={otherCountryOfBirth}
+                onChange={(e) => setOtherCountryOfBirth(e.target.value)}
+                required
+                className="input-field"
+                placeholder="Enter Country"
+              />
+            </div>
+          )}
         </div>
         <div className="form-group">
-          <label>Country of Residence<span className="required-asterisk">*</span></label>
+          <label>Country of Residence</label>
           <select
             value={countryOfResidence}
             onChange={(e) => setCountryOfResidence(e.target.value)}
-            required
             className="input-field"
           >
             <option value="">Select Country</option>
@@ -137,26 +176,36 @@ export default function UserEntry() {
               <option key={country} value={country}>{country}</option>
             ))}
           </select>
+          {countryOfResidence === "Other" && (
+            <div className="form-group">
+              <label>Specify Country of Residence<span className="required-asterisk">*</span></label>
+              <input
+                value={otherCountryOfResidence}
+                onChange={(e) => setOtherCountryOfResidence(e.target.value)}
+                required
+                className="input-field"
+                placeholder="Enter Country"
+              />
+            </div>
+          )}
         </div>
         <div className="form-group">
-          <label>Age<span className="required-asterisk">*</span></label>
+          <label>Age</label>
           <input
             type="number"
             min="0"
             max="150"
             value={age}
             onChange={(e) => setAge(e.target.value)}
-            required
             className="input-field"
             placeholder="Enter Age"
           />
         </div>
         <div className="form-group">
-          <label>Gender<span className="required-asterisk">*</span></label>
+          <label>Gender</label>
           <select
             value={gender}
             onChange={(e) => setGender(e.target.value)}
-            required
             className="input-field"
           >
             <option value="">Select Gender</option>
@@ -165,11 +214,10 @@ export default function UserEntry() {
           </select>
         </div>
         <div className="form-group">
-          <label>Verified User?<span className="required-asterisk">*</span></label>
+          <label>Verified User?</label>
           <select
             value={isVerified}
             onChange={(e) => setIsVerified(e.target.value)}
-            required
             className="input-field"
           >
             <option value="">Select Verification Status</option>

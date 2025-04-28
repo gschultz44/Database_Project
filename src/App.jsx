@@ -65,7 +65,6 @@ function App() {
                     <div id="dataEntryMenu" className="submenu">
                       <button onClick={() => navigateTo('userEntry')} className="submenu-item">User</button>
                       <button onClick={() => navigateTo('postEntry')} className="submenu-item">Post</button>
-                      <button onClick={() => navigateTo('repostEntry')} className="submenu-item">Repost</button> {/* Added RepostEntry here */}
                       <button onClick={() => navigateTo('projectEntry')} className="submenu-item">Project</button>
                       <button onClick={() => navigateTo('analysisEntry')} className="submenu-item">Analysis</button>
                     </div>
@@ -82,11 +81,11 @@ function App() {
                     </div>
                   )}
                 </div>
-                <div className="feature-card" onClick={() => navigateTo('projectSearch')}>
+                {/* <div className="feature-card" onClick={() => navigateTo('projectSearch')}>
                   <div className="feature-icon">📊</div>
                   <h3 className="feature-title">Project Analytics</h3>
                   <p>View statistics and completion metrics for your projects</p>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -95,8 +94,6 @@ function App() {
         return <ProjectEntry />;
       case 'postEntry':
         return <PostEntry />;
-      case 'repostEntry': // Added RepostEntry routing
-        return <RepostEntry />;
       case 'userEntry':
         return <UserEntry />;
       case 'analysisEntry':
