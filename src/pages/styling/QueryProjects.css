@@ -14,6 +14,10 @@
     text-align: center;
   }
   
+  .query-form {
+    margin-bottom: 30px;
+  }
+  
   .form-group {
     margin-bottom: 20px;
   }
@@ -49,22 +53,21 @@
     background-color: #1c71ff;
   }
   
-  .btn-secondary {
-    background-color: #ccc;
-    color: white;
-    padding: 10px 20px;
+  .results-section {
+    margin-top: 30px;
+  }
+  
+  .result-card {
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
     border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
   
-  .btn-secondary:hover {
-    background-color: #888;
+  .no-results {
+    text-align: center;
+    color: #999;
+    font-size: 1.2em;
   }
-  .required-asterisk {
-    color: red;
-    margin-left: 2px;
-  }
-  
   

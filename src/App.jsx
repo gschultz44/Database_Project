@@ -8,6 +8,7 @@ import AnalysisEntry from './pages/AnalysisEntry';
 import QueryPosts from './pages/QueryPosts';
 import QueryProjects from './pages/QueryProjects';
 import ProjectSearch from './pages/ProjectSearch';
+import RepostEntry from './pages/RepostEntry';
 
 function App() {
   const [activePage, setActivePage] = useState('home');
@@ -62,10 +63,11 @@ function App() {
                   <p>Create projects, record posts, and enter analysis results</p>
                   {dataEntryMenuOpen && (
                     <div id="dataEntryMenu" className="submenu">
-                      <button onClick={() => navigateTo('projectEntry')} className="submenu-item">Projects</button>
-                      <button onClick={() => navigateTo('postEntry')} className="submenu-item">Social Media Posts</button>
-                      <button onClick={() => navigateTo('userEntry')} className="submenu-item">User Information</button>
-                      <button onClick={() => navigateTo('analysisEntry')} className="submenu-item">Analysis Results</button>
+                      <button onClick={() => navigateTo('userEntry')} className="submenu-item">User</button>
+                      <button onClick={() => navigateTo('postEntry')} className="submenu-item">Post</button>
+                      <button onClick={() => navigateTo('repostEntry')} className="submenu-item">Repost</button> {/* Added RepostEntry here */}
+                      <button onClick={() => navigateTo('projectEntry')} className="submenu-item">Project</button>
+                      <button onClick={() => navigateTo('analysisEntry')} className="submenu-item">Analysis</button>
                     </div>
                   )}
                 </div>
@@ -75,12 +77,11 @@ function App() {
                   <p>Search posts by platform, time period, or user information</p>
                   {queryMenuOpen && (
                     <div id="queryMenu" className="submenu">
-                      <button onClick={() => navigateTo('postQuery')} className="submenu-item">Query Posts</button>
-                      <button onClick={() => navigateTo('projectQuery')} className="submenu-item">Query Projects</button>
+                      <button onClick={() => navigateTo('postQuery')} className="submenu-item">Posts</button>
+                      <button onClick={() => navigateTo('projectQuery')} className="submenu-item">Projects</button>
                     </div>
                   )}
                 </div>
-                {/* Project Analytics card */}
                 <div className="feature-card" onClick={() => navigateTo('projectSearch')}>
                   <div className="feature-icon">📊</div>
                   <h3 className="feature-title">Project Analytics</h3>
@@ -94,6 +95,8 @@ function App() {
         return <ProjectEntry />;
       case 'postEntry':
         return <PostEntry />;
+      case 'repostEntry': // Added RepostEntry routing
+        return <RepostEntry />;
       case 'userEntry':
         return <UserEntry />;
       case 'analysisEntry':
@@ -102,7 +105,7 @@ function App() {
         return <QueryPosts />;
       case 'projectQuery':
         return <QueryProjects />;
-      case 'projectSearch': 
+      case 'projectSearch':
         return <ProjectSearch />;
       default:
         return (

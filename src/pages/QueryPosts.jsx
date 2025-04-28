@@ -55,15 +55,36 @@ const QueryPosts = () => {
   };
 
   return (
-    <div className="query-posts-container">
-      <h1 className="page-title">Query Social Media Posts</h1>
+    <div className="page-container">
+      <h1 className="hero-title">Query Social Media Posts</h1>
       <form className="query-form" onSubmit={handleSubmit}>
-        <input name="media" placeholder="Social Media (e.g., Facebook)" onChange={handleChange} value={formData.media} />
-        {/* added drop down */}
-        <select 
+        <div className="form-group">
+          <label htmlFor="media">Select Social Media *</label>
+          <select 
+            id="media"
+            name="media" 
+            onChange={handleChange} 
+            value={formData.media} 
+            className="input-field"
+            required
+          >
+            <option value="">Select a social media platform</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Twitter">Twitter</option>
+            <option value="Instagram">Instagram</option>
+            <option value="LinkedIn">LinkedIn</option>
+            <option value="TikTok">TikTok</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="multimediaType">Select Multimedia Type</label>
+          <select 
+            id="multimediaType"
             name="multimediaType" 
             onChange={handleChange} 
-            value={formData.multimediaType}
+            value={formData.multimediaType} 
             className="input-field"
           >
             <option value="">All Multimedia Types</option>
@@ -71,15 +92,70 @@ const QueryPosts = () => {
             <option value="video">Video</option>
             <option value="text">Text</option>
             <option value="other">Other</option>
-        </select>
-        <input name="username" placeholder="Username" onChange={handleChange} value={formData.username} />
-        <input name="username" placeholder="Username" onChange={handleChange} value={formData.username} />
-        <input name="first_name" placeholder="First Name" onChange={handleChange} value={formData.first_name} />
-        <input name="last_name" placeholder="Last Name" onChange={handleChange} value={formData.last_name} />
-        <input type="date" name="start_date" onChange={handleChange} value={formData.start_date} />
-        <input type="date" name="end_date" onChange={handleChange} value={formData.end_date} />
-        <button type="submit" disabled={loading}>{loading ? 'Querying...' : 'Search Posts'}</button>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <input 
+            name="username" 
+            placeholder="Username" 
+            onChange={handleChange} 
+            value={formData.username} 
+            className="input-field"
+          />
+        </div>
+
+        <div className="form-group">
+          <input 
+            name="first_name" 
+            placeholder="First Name" 
+            onChange={handleChange} 
+            value={formData.first_name} 
+            className="input-field"
+          />
+        </div>
+
+        <div className="form-group">
+          <input 
+            name="last_name" 
+            placeholder="Last Name" 
+            onChange={handleChange} 
+            value={formData.last_name} 
+            className="input-field"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="start_date">Start Date *</label>
+          <input 
+            type="date" 
+            name="start_date" 
+            onChange={handleChange} 
+            value={formData.start_date} 
+            className="input-field"
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="end_date">End Date *</label>
+          <input 
+            type="date" 
+            name="end_date" 
+            onChange={handleChange} 
+            value={formData.end_date} 
+            className="input-field"
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <button type="submit" disabled={loading} className="btn-primary">
+            {loading ? 'Querying...' : 'Search Posts'}
+          </button>
+        </div>
       </form>
+
       <div className="results-container">
         {posts.length > 0 && posts.map((post, index) => (
           <div className="post-card" key={index}>

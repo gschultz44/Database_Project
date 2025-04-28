@@ -48,4 +48,31 @@
   .btn-primary:hover {
     background-color: #1c71ff;
   }
+  .required-asterisk {
+    color: red;
+    margin-left: 2px;
+  }
+  .input-field {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  .btn-primary {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .btn-primary:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
   

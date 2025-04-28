@@ -9,7 +9,7 @@ export default function AnalysisEntry() {
   const [userId, setUserId] = useState("");
 
   const validateAnalysisDate = () => {
-    if (!analysisDate) return false;
+    if (!analysisDate) return true; // allow if empty
     const analysis = new Date(analysisDate);
     return !isNaN(analysis.getTime());
   };
@@ -35,12 +35,12 @@ export default function AnalysisEntry() {
     const trimmedAnalysisResult = analysisResult.trim();
     const trimmedUserId = userId.trim();
 
-    if (!trimmedProjectId || !trimmedAnalysisType || !trimmedAnalysisResult || !analysisDate || !trimmedUserId) {
-      alert("Please fill out all required fields.");
+    if (!trimmedProjectId || !trimmedUserId) {
+      alert("Please fill out Project ID and User ID.");
       return;
     }
 
-    if (!validateAnalysisDate()) {
+    if (analysisDate && !validateAnalysisDate()) {
       alert("Please enter a valid analysis date.");
       return;
     }
@@ -51,10 +51,10 @@ export default function AnalysisEntry() {
     try {
       const analysisData = {
         projectId: trimmedProjectId,
-        analysisType: trimmedAnalysisType,
-        analysisResult: trimmedAnalysisResult,
-        analysisDate,
         userId: trimmedUserId,
+        ...(trimmedAnalysisType && { analysisType: trimmedAnalysisType }),
+        ...(trimmedAnalysisResult && { analysisResult: trimmedAnalysisResult }),
+        ...(analysisDate && { analysisDate }),
       };
 
       const response = await fetch("http://localhost:5000/api/analysis", {
@@ -84,53 +84,50 @@ export default function AnalysisEntry() {
       <h1 className="hero-title">Analysis Entry</h1>
       <div className="space-y-4">
         <div className="form-group">
-          <label>Project ID</label>
+          <label>Project Name <span style={{ color: 'red' }}>*</span></label>
           <input
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
             required
             className="input-field"
-            placeholder="Enter Project ID"
+            placeholder="Enter Project Name"
           />
         </div>
         <div className="form-group">
-          <label>Analysis Type</label>
+          <label>Analysis Type (optional)</label>
           <input
             value={analysisType}
             onChange={(e) => setAnalysisType(e.target.value)}
-            required
             className="input-field"
             placeholder="Enter Analysis Type"
           />
         </div>
         <div className="form-group">
-          <label>Analysis Result</label>
+          <label>Analysis Result (optional)</label>
           <textarea
             value={analysisResult}
             onChange={(e) => setAnalysisResult(e.target.value)}
-            required
             className="input-field"
             placeholder="Enter Analysis Result"
           />
         </div>
         <div className="form-group">
-          <label>Analysis Date</label>
+          <label>Analysis Date (optional)</label>
           <input
             type="date"
             value={analysisDate}
             onChange={(e) => setAnalysisDate(e.target.value)}
-            required
             className="input-field"
           />
         </div>
         <div className="form-group">
-          <label>User ID</label>
+          <label>Username <span style={{ color: 'red' }}>*</span></label>
           <input
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             required
             className="input-field"
-            placeholder="Enter User ID"
+            placeholder="Enter Username"
           />
         </div>
         <div className="form-group">
