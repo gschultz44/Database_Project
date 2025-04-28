@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import { CSVLink } from 'react-csv';
+import { useLocation } from 'react-router-dom';
 import Chart from 'chart.js/auto';
 import './styling/ProjectAnalytics.css';
 
 const ProjectAnalytics = () => {
   const useMockData = true; // Toggle to false when using backend
 
+  const location = useLocation();
+  const incomingFilters = location.state.filters || {};
+  
   const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [exportData, setExportData] = useState([]);
 
   const [filters, setFilters] = useState({
-    startDate: '',
-    endDate: '',
-    sentiment: '',
-    keyword: '',
+    startDate: incomingFilters.startDate || '',
+    endDate: incomingFilters.endDate || '',
+    sentiment: incomingFilters.sentiment || '',
+    keyword: incomingFilters.query || '',
+    projectName: incomingFilters.projectName || '',
+    username: incomingFilters.username || '',
   });
 
   useEffect(() => {
@@ -27,6 +33,8 @@ const ProjectAnalytics = () => {
           sentimentScore: 0.9,
           engagement: 120,
           content: 'Great progress on our project!',
+          projectName: 'project one',
+          username: 'user123',
         },
         {
           date: '2025-04-03',
@@ -34,6 +42,8 @@ const ProjectAnalytics = () => {
           sentimentScore: 0.5,
           engagement: 75,
           content: 'Team meeting today went as expected.',
+          projectName: 'Final Project',
+          username: 'usrnm',
         },
         {
           date: '2025-04-05',
@@ -41,6 +51,8 @@ const ProjectAnalytics = () => {
           sentimentScore: 0.2,
           engagement: 40,
           content: 'Faced some blockers during integration.',
+          projectName: 'Databases',
+          username: 'FirstName',
         },
         {
           date: '2025-04-10',
@@ -48,6 +60,8 @@ const ProjectAnalytics = () => {
           sentimentScore: 0.8,
           engagement: 110,
           content: 'Successfully deployed the latest build!',
+          projectName: 'Proj2',
+          username: 'LastName',
         },
       ];
       setAllData(mockPosts);
@@ -85,6 +99,16 @@ const ProjectAnalytics = () => {
     if (filters.keyword) {
       data = data.filter((post) =>
         post.content.toLowerCase().includes(filters.keyword.toLowerCase())
+      );
+    }
+    if (filters.projectName) {
+      data = data.filter((post) =>
+        post.projectName.toLowerCase().includes(filters.projectName.toLowerCase())
+      );
+    }
+    if (filters.username) {
+      data = data.filter((post) =>
+        post.username.toLowerCase().includes(filters.username.toLowerCase())
       );
     }
 
@@ -143,6 +167,20 @@ const ProjectAnalytics = () => {
           value={filters.keyword}
           onChange={handleFilterChange}
           placeholder="Search by Keyword"
+        />
+        <input
+          type="text"
+          name="projectName"
+          value={filters.projectName}
+          onChange={handleFilterChange}
+          placeholder="Search by Project Name"
+        />
+        <input
+          type="text"
+          name="username"
+          value={filters.username}
+          onChange={handleFilterChange}
+          placeholder="Search by Username"
         />
         <button onClick={applyFilters}>Apply Filters</button>
       </div>

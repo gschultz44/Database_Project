@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CSVLink } from 'react-csv';
 import './styling/ProjectSearch.css';
 
@@ -16,7 +17,9 @@ const SearchPage = () => {
     sentiment: '',
     category: '',
     sortBy: 'date',
-    sortOrder: 'desc'
+    sortOrder: 'desc',
+    projectName: '',
+    username: ''
   });
 
   // Mock data - replace with actual API call
@@ -31,7 +34,9 @@ const SearchPage = () => {
           sentimentScore: 0.87,
           category: "progress",
           content: "The team has successfully completed the first phase of development.",
-          engagement: 125
+          engagement: 125,
+          projectName: 'project one',
+          username: 'user123'
         },
         {
           id: 2,
@@ -41,7 +46,9 @@ const SearchPage = () => {
           sentimentScore: 0.21,
           category: "bugs",
           content: "Users reporting problems with the checkout flow after latest update.",
-          engagement: 78
+          engagement: 78,
+          projectName: 'Final Project',
+          username: 'usrnm'
         },
         {
           id: 3,
@@ -51,7 +58,9 @@ const SearchPage = () => {
           sentimentScore: 0.52,
           category: "meetings",
           content: "Standard progress update and planning for next sprint.",
-          engagement: 45
+          engagement: 45,
+          projectName: 'Databases',
+          username: 'FirstName'
         },
         {
           id: 4,
@@ -61,7 +70,9 @@ const SearchPage = () => {
           sentimentScore: 0.94,
           category: "features",
           content: "The search functionality has been enhanced with advanced filtering.",
-          engagement: 210
+          engagement: 210,
+          projectName: 'Proj2',
+          username: 'LastName'
         },
         {
           id: 5,
@@ -71,7 +82,9 @@ const SearchPage = () => {
           sentimentScore: 0.49,
           category: "planning",
           content: "Financial planning meeting to allocate resources for Q3.",
-          engagement: 62
+          engagement: 62,
+          projectName: 'Project3',
+          username: 'User2'
         }
       ];
       setSearchResults(mockData);
@@ -123,6 +136,16 @@ const SearchPage = () => {
     if (filters.category) {
       results = results.filter(item => item.category === filters.category);
     }
+
+    // Project name filter
+    if(filters.projectName) {
+      results = results.filter(item => item.projectName === filters.projectName);
+    }
+
+    // Username filter
+    if(filters.username) {
+      results = results.filter(item => item.username === filters.username);
+    }
     
     // Sorting
     results.sort((a, b) => {
@@ -157,7 +180,9 @@ const SearchPage = () => {
       sentiment: '',
       category: '',
       sortBy: 'date',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
+      projectName: '',
+      username: ''
     });
     setFilteredResults(searchResults);
     setNoResults(false);
@@ -183,6 +208,32 @@ const SearchPage = () => {
               value={filters.query}
               onChange={handleFilterChange}
               placeholder="Search by keyword"
+              className="full-width"
+            />
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="projectName">Project Name</label>
+            <input
+              type="text"
+              id="projectName"
+              name="projectName"
+              value={filters.projectName}
+              onChange={handleFilterChange}
+              placeholder="Search by project name"
+              className="full-width"
+            />
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={filters.username}
+              onChange={handleFilterChange}
+              placeholder="Search by username"
               className="full-width"
             />
           </div>
