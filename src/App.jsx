@@ -4,6 +4,7 @@ import './App.css';
 import ProjectEntry from './pages/ProjectEntry';
 import PostEntry from './pages/PostEntry';
 import UserEntry from './pages/UserEntry';
+import FieldEntry from './pages/FieldEntry';
 import AnalysisEntry from './pages/AnalysisEntry';
 import QueryPosts from './pages/QueryPosts';
 import QueryProjects from './pages/QueryProjects';
@@ -66,6 +67,7 @@ function App() {
                       <button onClick={() => navigateTo('userEntry')} className="submenu-item">User</button>
                       <button onClick={() => navigateTo('postEntry')} className="submenu-item">Post</button>
                       <button onClick={() => navigateTo('projectEntry')} className="submenu-item">Project</button>
+                      <button onClick={() => navigateTo('fieldEntry')} className="submenu-item">Field</button>
                       <button onClick={() => navigateTo('analysisEntry')} className="submenu-item">Analysis</button>
                     </div>
                   )}
@@ -96,6 +98,8 @@ function App() {
         return <PostEntry />;
       case 'userEntry':
         return <UserEntry />;
+      case 'fieldEntry':
+        return <FieldEntry />;
       case 'analysisEntry':
         return <AnalysisEntry />;
       case 'postQuery':
