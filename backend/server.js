@@ -1,6 +1,7 @@
 import express from 'express';
 import mysql from 'mysql2';
-import fs from 'fs';      
+import fs from 'fs'; 
+import cors from 'cors';     
 
 const app = express();
 app.use(express.json());
@@ -75,6 +76,10 @@ function createTables() {
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
 });
+
+app.use(cors({
+  origin: 'http://localhost:5173' // allows frontend to make requests to backend
+}));
 
 
 

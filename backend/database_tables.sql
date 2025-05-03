@@ -17,7 +17,7 @@ CREATE TABLE UserAccount (
 );
 
 CREATE TABLE Post (
-    post_id INT NOT NULL PRIMARY KEY,
+    post_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
     media_name VARCHAR(100) NOT NULL,
     content VARCHAR(1000) NOT NULL,
@@ -64,3 +64,10 @@ CREATE TABLE AnalysisResult (
     FOREIGN KEY (post_id) REFERENCES Post(post_id) ON DELETE CASCADE,
     FOREIGN KEY (field_id, project_name) REFERENCES Field(field_id, project_name) ON DELETE CASCADE
 );
+
+INSERT INTO SocialMedia (media_name) VALUES 
+    ('Facebook'),
+    ('Twitter'),
+    ('Instagram'),
+    ('LinkedIn'),
+    ('Snapchat');

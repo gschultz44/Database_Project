@@ -1,32 +1,33 @@
 .analytics-page {
-    padding: 20px;
-  }
-  
-  .filters {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .chart {
-    margin-bottom: 20px;
-  }
-  
-  .post-table {
-    margin-bottom: 20px;
-  }
-  
-  .post-table table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .post-table th, .post-table td {
-    padding: 10px;
-    border: 1px solid #ddd;
-  }
-  
-  .export-button {
-    margin-top: 20px;
-  }
+  padding: 20px;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.chart {
+  margin-bottom: 20px;
+}
+
+.post-table {
+  margin-bottom: 20px;
+}
+
+.post-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.post-table th, .post-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.export-button {
+  margin-top: 20px;
+}
+
   

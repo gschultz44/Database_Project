@@ -1,51 +1,50 @@
 /* General Styles */
 .page-container {
-    padding: 30px;
-    background-color: white;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  
-  .hero-title {
-    font-size: 2em;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  .input-field {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1em;
-    background-color: #f9f9f9;
-    transition: border-color 0.3s ease;
-  }
-  
-  .input-field:focus {
-    border-color: #4e9af1;
-    outline: none;
-  }
-  
-  .btn-primary {
-    background-color: #4e9af1;
-    color: white;
-    padding: 15px 30px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease;
-    width: 100%;
-  }
-  
-  .btn-primary:hover {
-    background-color: #1c71ff;
-  }
-  
+  padding: 30px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: 2em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease;
+}
+
+.input-field:focus {
+  border-color: #4e9af1;
+  outline: none;
+}
+
+.btn-primary {
+  background-color: #4e9af1;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background-color: #1c71ff;
+}
