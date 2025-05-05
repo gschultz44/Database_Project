@@ -91,6 +91,7 @@ export default function PostEntry() {
     likes: "",
     dislikes: "",
     multimedia: "",
+    multimediaLink: "",
     projectName: "",
     fieldName: "",
     postContent: ""
@@ -130,7 +131,7 @@ export default function PostEntry() {
     const {
       platform, username, postDatetime, isRepost, repostUsername,
       repostDatetime, city, stateName, country, otherCountry,
-      likes, dislikes, multimedia, projectName, fieldName, postContent
+      likes, dislikes, multimedia, multimediaLink, projectName, fieldName, postContent
     } = post;
 
     const trimmedPostData = {
@@ -147,6 +148,7 @@ export default function PostEntry() {
       likes: likes.trim(),
       dislikes: dislikes.trim(),
       multimedia: multimedia.trim(),
+      multimediaLink: multimediaLink.trim(),
       projectName: projectName.trim(),
       fieldName: fieldName.trim(),
       postContent: postContent.trim()
@@ -199,8 +201,10 @@ export default function PostEntry() {
         
         likes: trimmedPostData.likes ? parseInt(trimmedPostData.likes) : null,
         dislikes: trimmedPostData.dislikes ? parseInt(trimmedPostData.dislikes) : null,
-        multimedia: trimmedPostData.multimedia || null,
-        
+        multimedia: trimmedPostData.multimediaLink
+          ? `${trimmedPostData.multimediaLink}`
+          : trimmedPostData.multimedia || null,
+
         // Match the snake_case naming in the API and database
         project_name: trimmedPostData.projectName || null,
         field_name: trimmedPostData.fieldName || null
@@ -229,7 +233,7 @@ export default function PostEntry() {
           otherCountry: "",
           likes: "",
           dislikes: "",
-          multimedia: "",
+          multimediaLink: "",
           projectName: "",
           fieldName: "",
           postContent: ""
@@ -479,6 +483,20 @@ export default function PostEntry() {
             <option value="no">No</option>
           </select>
         </div>
+
+        {post.multimedia === "yes" && (
+          <div className="form-group">
+            <label>Multimedia Link<span className="required-asterisk">*</span></label>
+            <input
+              name="multimediaLink"
+              value={post.multimediaLink}
+              onChange={handleChange}
+              className="input-field"
+              placeholder="Enter multimedia link"
+              required
+            />
+          </div>
+        )}
 
         <div className="form-group">
           <label>Project</label>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import './styling/PostEntry.css'; // Reusing your existing CSS
+import './styling/PostEntry.css'; 
 
 export default function QueryProjects() {
   const [projects, setProjects] = useState([]);

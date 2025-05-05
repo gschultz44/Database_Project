@@ -6,6 +6,7 @@ export default function UserEntry() {
   const [newUser, setNewUser] = useState({
     username: '',
     media_name: '',
+    other_media_name: '',
     first_name: '',
     last_name: '',
     birth_country: '',
@@ -18,6 +19,7 @@ export default function UserEntry() {
   });
   const [message, setMessage] = useState({ text: '', type: '' });
   const [loading, setLoading] = useState(false);
+  const [socialMediaPlatforms, setSocialMediaPlatforms] = useState([]);
 
   // Fetch users and social media platforms when component mounts
   useEffect(() => {
@@ -25,8 +27,6 @@ export default function UserEntry() {
     fetchSocialMediaPlatforms();
   }, []);
   
-  const [socialMediaPlatforms, setSocialMediaPlatforms] = useState([]);
-
   const fetchUsers = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/users');
@@ -76,6 +76,31 @@ export default function UserEntry() {
     return !newUser.age || (!isNaN(num) && num >= 0 && num <= 150);
   };
 
+  const addNewSocialMedia = async (mediaName) => {
+    try {
+      const response = await fetch('http://localhost:3000/api/socialmedia', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ media_name: mediaName }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add social media platform');
+      }
+      
+      // Refresh the list of social media platforms
+      await fetchSocialMediaPlatforms();
+      
+      return true;
+    } catch (error) {
+      setMessage({ text: `Error adding social media platform: ${error.message}`, type: 'error' });
+      return false;
+    }
+  };
+
   const handleSubmit = async () => {
     if (loading) return;
     setLoading(true);
@@ -86,9 +111,14 @@ export default function UserEntry() {
         throw new Error('Username is required');
       }
 
-      // Social Media site must be choosen
-      if (!newUser.media_name.trim()) {
+      // Social Media site must be chosen
+      if (newUser.media_name !== "Other" && !newUser.media_name.trim()) {
         throw new Error('Social Media is required');
+      }
+
+      // If "Other" is selected, other_media_name must be filled
+      if (newUser.media_name === "Other" && !newUser.other_media_name.trim()) {
+        throw new Error('Please specify the social media platform');
       }
 
       // Age validation
@@ -105,10 +135,22 @@ export default function UserEntry() {
         throw new Error('Please specify your Country of Residence');
       }
       
+      // Handle new social media platform if needed
+      let finalMediaName = newUser.media_name;
+      if (newUser.media_name === "Other") {
+        const newMediaName = newUser.other_media_name.trim();
+        const success = await addNewSocialMedia(newMediaName);
+        if (success) {
+          finalMediaName = newMediaName;
+        } else {
+          throw new Error('Failed to add new social media platform');
+        }
+      }
+      
       // Prepare user data for submission
       const userToSubmit = {
         username: newUser.username.trim(),
-        media_name: newUser.media_name || null,
+        media_name: finalMediaName,
         first_name: newUser.first_name.trim() || null,
         last_name: newUser.last_name.trim() || null,
         birth_country: newUser.birth_country === "Other" ? 
@@ -139,6 +181,7 @@ export default function UserEntry() {
       setNewUser({
         username: '',
         media_name: '',
+        other_media_name: '',
         first_name: '',
         last_name: '',
         birth_country: '',
@@ -191,7 +234,9 @@ export default function UserEntry() {
         </div>
         
         <div className="form-group">
-          <label htmlFor="media_name">Social Media Platform<span className="required-asterisk">*</span></label>
+          <label htmlFor="media_name">
+            Social Media Platform<span className="required-asterisk">*</span>
+          </label>
           <select
             id="media_name"
             name="media_name"
@@ -206,9 +251,28 @@ export default function UserEntry() {
                 {platform.media_name}
               </option>
             ))}
+            <option value="Other">Other</option>
           </select>
         </div>
-        
+
+        {newUser.media_name === "Other" && (
+          <div className="form-group">
+            <label htmlFor="other_media_name">
+              Other Social Media Platform<span className="required-asterisk">*</span>
+            </label>
+            <input
+              type="text" 
+              id="other_media_name"
+              name="other_media_name"
+              value={newUser.other_media_name}
+              onChange={handleChange}
+              className="input-field"
+              placeholder="Enter Other Social Media Platform"
+              required
+            />
+          </div>
+        )}
+
         <div className="form-group">
           <label htmlFor="first_name">First Name<span className="required-asterisk">*</span></label>
           <input
