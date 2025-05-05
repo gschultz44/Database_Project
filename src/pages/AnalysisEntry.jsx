@@ -1,12 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import './styling/AnalysisEntry.css';
 
 export default function AnalysisEntry() {
-  const [projectId, setProjectId] = useState("");
-  const [analysisType, setAnalysisType] = useState("");
-  const [analysisResult, setAnalysisResult] = useState("");
+  const [analyses, setAnalyses] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [projectName, setProjectName] = useState("");
+  const [analysisTitle, setAnalysisTitle] = useState("");
+  const [analysisData, setAnalysisData] = useState("");
   const [analysisDate, setAnalysisDate] = useState("");
-  const [userId, setUserId] = useState("");
+  const [message, setMessage] = useState({ text: '', type: '' });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchAnalyses();
+    fetchProjects();
+  }, []);
+
+  const fetchAnalyses = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/analysis');
+      if (!response.ok) throw new Error('Failed to fetch analyses');
+      const data = await response.json();
+      setAnalyses(data);
+    } catch (error) {
+      setMessage({ text: error.message, type: 'error' });
+    }
+  };
+  
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/projects');
+      if (!response.ok) throw new Error('Failed to fetch projects');
+      const data = await response.json();
+      setProjects(data);
+    } catch (error) {
+      setMessage({ text: error.message, type: 'error' });
+    }
+  };
 
   const validateAnalysisDate = () => {
     if (!analysisDate) return false;
@@ -14,108 +44,122 @@ export default function AnalysisEntry() {
     return !isNaN(analysis.getTime());
   };
 
-  const validateUserExistence = async (userId) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/user/${userId}`);
-      if (!response.ok) {
-        alert("User not found.");
-        return false;
-      }
-      return true;
-    } catch (error) {
-      console.error("Error checking user existence:", error);
-      alert("Failed to validate user.");
-      return false;
-    }
-  };
-
   const handleSubmit = async () => {
-    const trimmedProjectId = projectId.trim();
-    const trimmedAnalysisType = analysisType.trim();
-    const trimmedAnalysisResult = analysisResult.trim();
-    const trimmedUserId = userId.trim();
+    setLoading(true);
+    const trimmedProjectName = projectName.trim();
+    const trimmedAnalysisTitle = analysisTitle.trim();
+    const trimmedAnalysisData = analysisData.trim();
 
-    if (!trimmedProjectId || !trimmedAnalysisType || !trimmedAnalysisResult || !analysisDate || !trimmedUserId) {
-      alert("Please fill out all required fields.");
+    if (!trimmedProjectName || !trimmedAnalysisTitle || !trimmedAnalysisData || !analysisDate) {
+      setMessage({ text: "Please fill out all required fields.", type: 'error' });
+      setLoading(false);
       return;
     }
 
     if (!validateAnalysisDate()) {
-      alert("Please enter a valid analysis date.");
+      setMessage({ text: "Please enter a valid analysis date.", type: 'error' });
+      setLoading(false);
       return;
     }
 
-    const userExists = await validateUserExistence(trimmedUserId);
-    if (!userExists) return;
-
     try {
-      const analysisData = {
-        projectId: trimmedProjectId,
-        analysisType: trimmedAnalysisType,
-        analysisResult: trimmedAnalysisResult,
-        analysisDate,
-        userId: trimmedUserId,
+      // Match the exact structure expected by the API
+      const analysisRequestData = {
+        project_name: trimmedProjectName,
+        analysis_title: trimmedAnalysisTitle,
+        analysis_data: trimmedAnalysisData,
+        analysis_date: analysisDate
       };
 
-      const response = await fetch("http://localhost:5000/api/analysis", {
+      const response = await fetch("http://localhost:3000/api/analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(analysisData),
+        body: JSON.stringify(analysisRequestData),
       });
 
       if (response.ok) {
-        alert("Analysis submitted successfully!");
-        setProjectId("");
-        setAnalysisType("");
-        setAnalysisResult("");
+        setMessage({ text: "Analysis submitted successfully!", type: 'success' });
+        setProjectName("");
+        setAnalysisTitle("");
+        setAnalysisData("");
         setAnalysisDate("");
-        setUserId("");
+        
+        // Refresh the analyses list
+        fetchAnalyses();
+        
+        setTimeout(() => {
+          setMessage({ text: '', type: '' });
+        }, 3000);
       } else {
-        alert("Failed to submit analysis.");
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add analysis');
       }
     } catch (error) {
       console.error("Error submitting analysis:", error);
-      alert("An error occurred while submitting the analysis.");
+      setMessage({ text: error.message || "An error occurred while submitting the analysis.", type: 'error' });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="page-container">
-      <h1 className="hero-title">Analysis Entry</h1>
+      <h1 className="hero-title" style={{ color: 'black' }}>Analysis Entry</h1>
+      
+      {message.text && (
+        <div className={`message ${message.type}`}>
+          {message.text}
+        </div>
+      )}
+      
       <div className="space-y-4">
         <div className="form-group">
-          <label>Project ID</label>
-          <input
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
+          <label htmlFor="project_name">Project Name *</label>
+          <select
+            id="project_name"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
             required
             className="input-field"
-            placeholder="Enter Project ID"
-          />
+          >
+            <option value="">Select a Project</option>
+            {projects.map((project, index) => (
+              <option key={index} value={project.project_name}>
+                {project.project_name}
+              </option>
+            ))}
+          </select>
         </div>
+        
         <div className="form-group">
-          <label>Analysis Type</label>
+          <label htmlFor="analysis_title">Analysis Title *</label>
           <input
-            value={analysisType}
-            onChange={(e) => setAnalysisType(e.target.value)}
+            id="analysis_title"
+            value={analysisTitle}
+            onChange={(e) => setAnalysisTitle(e.target.value)}
             required
             className="input-field"
-            placeholder="Enter Analysis Type"
+            placeholder="Enter Analysis Title"
           />
         </div>
+        
         <div className="form-group">
-          <label>Analysis Result</label>
+          <label htmlFor="analysis_data">Analysis Result *</label>
           <textarea
-            value={analysisResult}
-            onChange={(e) => setAnalysisResult(e.target.value)}
+            id="analysis_data"
+            value={analysisData}
+            onChange={(e) => setAnalysisData(e.target.value)}
             required
             className="input-field"
             placeholder="Enter Analysis Result"
+            rows="4"
           />
         </div>
+        
         <div className="form-group">
-          <label>Analysis Date</label>
+          <label htmlFor="analysis_date">Analysis Date *</label>
           <input
+            id="analysis_date"
             type="date"
             value={analysisDate}
             onChange={(e) => setAnalysisDate(e.target.value)}
@@ -123,24 +167,43 @@ export default function AnalysisEntry() {
             className="input-field"
           />
         </div>
-        <div className="form-group">
-          <label>User ID</label>
-          <input
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            required
-            className="input-field"
-            placeholder="Enter User ID"
-          />
-        </div>
+        
         <div className="form-group">
           <button
             onClick={handleSubmit}
             className="btn-primary"
+            disabled={loading}
           >
-            Submit Analysis
+            {loading ? 'Submitting...' : 'Submit Analysis'}
           </button>
         </div>
+      </div>
+      
+      <div className="table-section">
+        <h2>Existing Analyses</h2>
+        
+        {analyses.length > 0 ? (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Project Name</th>
+                <th>Analysis Title</th>
+                <th>Analysis Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {analyses.map((analysis, index) => (
+                <tr key={index}>
+                  <td>{analysis.project_name}</td>
+                  <td>{analysis.analysis_title}</td>
+                  <td>{new Date(analysis.analysis_date).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No analyses found. Add your first analysis above.</p>
+        )}
       </div>
     </div>
   );

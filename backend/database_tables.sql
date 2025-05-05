@@ -49,7 +49,7 @@ CREATE TABLE Repost (
 
 CREATE TABLE Project (
     project_name VARCHAR(100) NOT NULL PRIMARY KEY,
-    project_description VARCHAR(100),
+    project_description VARCHAR(1000),
     project_manager_first VARCHAR(100) NOT NULL,
     project_manager_last VARCHAR(100) NOT NULL,
     institute VARCHAR(100),
@@ -66,13 +66,12 @@ CREATE TABLE Field (
 );
 
 CREATE TABLE AnalysisResult (
-    result_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    post_id INT NOT NULL,
-    field_id INT NOT NULL,
+    analysis_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     project_name VARCHAR(100) NOT NULL,
-    result_data VARCHAR(100),
-    FOREIGN KEY (post_id) REFERENCES Post(post_id) ON DELETE CASCADE,
-    FOREIGN KEY (field_id, project_name) REFERENCES Field(field_id, project_name) ON DELETE CASCADE
+    analysis_title VARCHAR(100),
+    analysis_data VARCHAR(1000),
+    analysis_date DATE,
+    FOREIGN KEY (project_name) REFERENCES Project(project_name) ON DELETE CASCADE
 );
 
 INSERT INTO SocialMedia (media_name) VALUES 

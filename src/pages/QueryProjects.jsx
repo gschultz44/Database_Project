@@ -6,6 +6,8 @@ export default function QueryProjects() {
   const [fields, setFields] = useState([]);
   const [filteredFields, setFilteredFields] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [analysisResults, setAnalysisResults] = useState([]);
+  const [fieldDistribution, setFieldDistribution] = useState({});
   const [message, setMessage] = useState({ text: '', type: '' });
   const [loading, setLoading] = useState(false);
   
@@ -59,6 +61,32 @@ export default function QueryProjects() {
     }
   };
 
+  const fetchAnalysisByProject = async (projectName) => {
+    if (!projectName) {
+      setAnalysisResults([]);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const response = await fetch(`http://localhost:3000/api/analysis`);
+      if (!response.ok) throw new Error('Failed to fetch analysis results');
+      const data = await response.json();
+      
+      // Filter analysis results by project name
+      const projectAnalysis = data.filter(analysis => 
+        analysis.project_name === projectName
+      );
+      
+      setAnalysisResults(projectAnalysis);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      setMessage({ text: `Error fetching analysis: ${error.message}`, type: 'error' });
+      setAnalysisResults([]);
+    }
+  };
+
   const fetchPosts = async () => {
     const { projectName, fieldName } = queryParams;
     
@@ -72,7 +100,10 @@ export default function QueryProjects() {
       setPosts([]);
       setMessage({ text: '', type: '' });
       
-      // First, we need to get all posts
+      // First, fetch analysis results for the selected project
+      await fetchAnalysisByProject(projectName);
+      
+      // Then, fetch posts
       const response = await fetch(`http://localhost:3000/api/query/posts`);
       
       if (!response.ok) throw new Error('Failed to fetch posts');
@@ -94,6 +125,14 @@ export default function QueryProjects() {
       
       setPosts(filteredPosts);
       
+      // Calculate field distribution for all project posts (regardless of field filter)
+      if (filteredPosts.length > 0) {
+        const projectPosts = allPosts.filter(post => post.project_name === projectName);
+        calculateFieldDistribution(projectPosts);
+      } else {
+        setFieldDistribution({});
+      }
+      
       if (filteredPosts.length === 0) {
         setMessage({ text: "No posts found for the selected criteria.", type: 'info' });
       } else {
@@ -109,16 +148,19 @@ export default function QueryProjects() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+  
     if (name === "projectName") {
-      // When project changes, clear field selection and fetch new fields
       setQueryParams(prev => ({
         ...prev,
         [name]: value,
         fieldName: ""
       }));
-      
-      // Fetch fields for the selected project
+  
+      // Clear analysis results, field distribution, and posts
+      setAnalysisResults([]);
+      setFieldDistribution({});
+      setPosts([]);
+
       fetchFieldsByProject(value);
     } else {
       setQueryParams(prev => ({
@@ -126,6 +168,31 @@ export default function QueryProjects() {
         [name]: value
       }));
     }
+  };  
+  
+  const calculateFieldDistribution = (projectPosts) => {
+    const fieldCounts = {};
+    const totalPosts = projectPosts.length;
+    
+    projectPosts.forEach(post => {
+      const fieldName = post.field_name || "Unassigned";
+      if (!fieldCounts[fieldName]) {
+        fieldCounts[fieldName] = 0;
+      }
+      fieldCounts[fieldName]++;
+    });
+    
+    const distribution = {};
+    Object.keys(fieldCounts).forEach(fieldName => {
+      const count = fieldCounts[fieldName];
+      const percentage = ((count / totalPosts) * 100).toFixed(1);
+      distribution[fieldName] = {
+        count,
+        percentage: parseFloat(percentage)
+      };
+    });
+    
+    setFieldDistribution(distribution);
   };
 
   const formatDate = (dateString) => {
@@ -192,27 +259,81 @@ export default function QueryProjects() {
         </div>
       </div>
 
+      {/* Analysis Results Section */}
+      {analysisResults.length > 0 && (
+        <div className="analysis-container">
+          <h2 className="section-title">Analysis Results for {queryParams.projectName}</h2>
+          <hr className="post-divider" />
+          <div className="analysis-grid">
+            {analysisResults.map((analysis, index) => (
+              <div className="analysis-card" key={index}>
+                <h3 className="analysis-subtitle">{analysis.analysis_title}</h3>
+                <div className="analysis-content">
+                  <p>{analysis.analysis_data}</p>
+                </div>
+                <p className="analysis-date">Analysis Date: {formatDate(analysis.analysis_date)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+     {/* Field Distribution Section */}
+      {Object.keys(fieldDistribution).length > 0 && (
+        <div className="analysis-container">
+          <h3 className="section-subtitle">Field Distribution for {queryParams.projectName}</h3>
+          <div className="field-distribution">
+            {Object.keys(fieldDistribution).map((fieldName, index) => {
+              const { count, percentage } = fieldDistribution[fieldName];
+              return (
+                <div className="distribution-item" key={index}>
+                  <div className="distribution-label">
+                    <span className="field-name">{fieldName}: </span>
+                    <span className="field-count">{count} posts </span>
+                    <span className="percentage">({percentage}%)</span>
+                  </div>
+                  <div className="progress-bar-container">
+                    <div 
+                      className="progress-bar" 
+                      style={{ width: `${percentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Posts Section */}
       {posts.length > 0 && (
         <div className="results-container">
+          <h2 className="section-title">Posts</h2>
           {posts.map((post, index) => (
             <div className="post-card" key={index}>
+              <hr className="post-divider" />
+
               <p className="post-text">{post.content}</p>
+
               <p className="post-info">
                 {post.media_name} | {post.username} | {new Date(post.post_time).toLocaleString()}
                 {post.multimedia && ` | Multimedia: ${post.multimedia}`}
               </p>
+
               {post.project_name && (
                 <div className="project-section">
-                  <p className="project-header">Project: {post.project_name}</p>
+                  <p className="project-header">Project: <strong>{post.project_name}</strong></p>
                   {post.field_name && <p>Field: {post.field_name}</p>}
                 </div>
               )}
-              {post.likes || post.dislikes ? (
+
+              {(post.likes || post.dislikes) && (
                 <div className="engagement">
                   {post.likes > 0 && <span>Likes: {post.likes}</span>}
                   {post.dislikes > 0 && <span> Dislikes: {post.dislikes}</span>}
                 </div>
-              ) : null}
+              )}
+
               {post.city && (
                 <div className="location">
                   <p>📍 {post.city}{post.state_name ? `, ${post.state_name}` : ''}{post.country ? `, ${post.country}` : ''}</p>
@@ -222,6 +343,7 @@ export default function QueryProjects() {
           ))}
         </div>
       )}
+
       
       {posts.length === 0 && !loading && !message.text && (
         <p className="no-results">Enter search criteria and click Search to find posts.</p>

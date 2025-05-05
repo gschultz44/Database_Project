@@ -198,27 +198,35 @@ export default function QueryPosts() {
         </div>
       </div>
 
+      {/* Posts Section */}
       {posts.length > 0 && (
         <div className="results-container">
+          <h2 className="section-title">Posts</h2>
           {posts.map((post, index) => (
             <div className="post-card" key={index}>
+              <hr className="post-divider" />
+
               <p className="post-text">{post.content}</p>
+
               <p className="post-info">
                 {post.media_name} | {post.username} | {new Date(post.post_time).toLocaleString()}
                 {post.multimedia && ` | Multimedia: ${post.multimedia}`}
               </p>
+
               {post.project_name && (
                 <div className="project-section">
-                  <p className="project-header">Project: {post.project_name}</p>
+                  <p className="project-header">Project: <strong>{post.project_name}</strong></p>
                   {post.field_name && <p>Field: {post.field_name}</p>}
                 </div>
               )}
-              {post.likes || post.dislikes ? (
+
+              {(post.likes || post.dislikes) && (
                 <div className="engagement">
                   {post.likes > 0 && <span>Likes: {post.likes}</span>}
                   {post.dislikes > 0 && <span> Dislikes: {post.dislikes}</span>}
                 </div>
-              ) : null}
+              )}
+
               {post.city && (
                 <div className="location">
                   <p>📍 {post.city}{post.state_name ? `, ${post.state_name}` : ''}{post.country ? `, ${post.country}` : ''}</p>

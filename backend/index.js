@@ -214,13 +214,16 @@ app.get('/api/analysis', async (req, res) => {
   }
 });
 
+
 app.post('/api/analysis', async (req, res) => {
   try {
-    const { result_id, post_id, field_id, project_name, result_data } = req.body;
+    const { project_name, analysis_title, analysis_data, analysis_date } = req.body;
+    
     await db.query(
-      'INSERT INTO AnalysisResult VALUES (?, ?, ?, ?, ?)',
-      [result_id, post_id, field_id, project_name, result_data]
+      'INSERT INTO AnalysisResult (project_name, analysis_title, analysis_data, analysis_date) VALUES (?, ?, ?, ?)',
+      [project_name, analysis_title, analysis_data, analysis_date]
     );
+    
     res.status(201).json({ success: true, message: 'Analysis result added' });
   } catch (err) {
     res.status(500).json({ error: err.message });
