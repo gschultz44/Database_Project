@@ -11,6 +11,8 @@ export default function QueryPosts() {
   const [post, setPost] = useState({
     media_name: "",
     username: "",
+    first_name: "",   // Added first name
+    last_name: "",    // Added last name
     content: "",
     date_from: "",
     date_to: "",
@@ -80,7 +82,8 @@ export default function QueryPosts() {
     }
     
     // Check if at least one search parameter is provided
-    if (!post.media_name && !post.username && !post.content && !post.date_from && !post.date_to) {
+    if (!post.media_name && !post.username && !post.first_name && !post.last_name && 
+        !post.content && !post.date_from && !post.date_to) {
       setMessage({ text: "Please provide at least one search parameter.", type: 'error' });
       return;
     }
@@ -92,6 +95,8 @@ export default function QueryPosts() {
       const params = new URLSearchParams();
       if (post.username) params.append('username', post.username);
       if (post.media_name) params.append('media_name', post.media_name);
+      if (post.first_name) params.append('first_name', post.first_name);
+      if (post.last_name) params.append('last_name', post.last_name);
       if (post.date_from) params.append('date_from', post.date_from);
       if (post.date_to) params.append('date_to', post.date_to);
       if (post.content) params.append('content', post.content);
@@ -167,6 +172,30 @@ export default function QueryPosts() {
           />
         </div>
 
+        {/* Added First Name field */}
+        <div className="form-group">
+          <label>First Name</label>
+          <input
+            name="first_name"
+            value={post.first_name}
+            onChange={handleChange}
+            className="input-field"
+            placeholder="Search by user's first name"
+          />
+        </div>
+
+        {/* Added Last Name field */}
+        <div className="form-group">
+          <label>Last Name</label>
+          <input
+            name="last_name"
+            value={post.last_name}
+            onChange={handleChange}
+            className="input-field"
+            placeholder="Search by user's last name"
+          />
+        </div>
+
         <div className="form-group">
           <label>Content</label>
           <input
@@ -223,6 +252,7 @@ export default function QueryPosts() {
               <p className="post-info">
                 {post.media_name && <span>{post.media_name}</span>}
                 {post.username && <span> | {post.username}</span>}
+                {post.first_name && post.last_name && <span> | {post.first_name} {post.last_name}</span>}
                 {post.post_time && <span> | {new Date(post.post_time).toLocaleString()}</span>}
                 {post.multimedia && <span> | Multimedia: {post.multimedia}</span>}
                 {post.is_repost === 1 && <span> | Repost: yes</span>}

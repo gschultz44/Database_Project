@@ -232,42 +232,78 @@ app.post('/api/analysis', async (req, res) => {
 
 // Simple queries 
 app.get('/api/query/posts', async (req, res) => {
-  console.log("made it to api/query/posts...")
   try {
-    const { username, media_name, date_from, date_to, content } = req.query;
+    const { 
+      username, 
+      media_name, 
+      first_name,  
+      last_name,
+      content, 
+      date_from, 
+      date_to 
+    } = req.query;
     
-    let query = 'SELECT * FROM Post WHERE 1=1';
+    let query = `
+      SELECT 
+        p.*,
+        u.first_name,
+        u.last_name
+      FROM Post p
+      INNER JOIN UserAccount u ON p.username = u.username AND p.media_name = u.media_name
+      WHERE 1=1
+    `;
+    
     const params = [];
     
     if (username) {
-      query += ' AND username LIKE ?';
+      query += ` AND p.username LIKE ?`;
       params.push(`%${username}%`);
     }
     
     if (media_name) {
-      query += ' AND media_name = ?';
+      query += ` AND p.media_name = ?`;
       params.push(media_name);
     }
     
-    if (date_from) {
-      query += ' AND post_time >= ?';
-      params.push(date_from);
+    if (first_name && first_name.trim() !== '') {
+      query += ` AND u.first_name LIKE ?`;
+      params.push(`%${first_name.trim()}%`);
+      
+      console.log(`Searching for first_name: '${first_name.trim()}'`);
     }
     
-    if (date_to) {
-      query += ' AND post_time <= ?';
-      params.push(date_to);
+    if (last_name && last_name.trim() !== '') {
+      query += ` AND u.last_name LIKE ?`;
+      params.push(`%${last_name.trim()}%`);
+      
+      console.log(`Searching for last_name: '${last_name.trim()}'`);
     }
     
     if (content) {
-      query += ' AND content LIKE ?';
+      query += ` AND p.content LIKE ?`;
       params.push(`%${content}%`);
     }
     
-    const [rows] = await db.query(query, params);
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (date_from && date_to) {
+      query += ` AND p.post_time BETWEEN ? AND ?`;
+      params.push(date_from, date_to);
+    }
+    
+    // Order by post time (most recent first)
+    query += ` ORDER BY p.post_time DESC`;
+    
+    console.log('Query:', query);
+    console.log('Parameters:', params);
+    
+    const [posts] = await db.execute(query, params);
+    
+    console.log(`Found ${posts.length} matching posts`);
+    
+    res.json(posts);
+    
+  } catch (error) {
+    console.error('Error querying posts:', error);
+    res.status(500).json({ error: 'An error occurred while querying posts' });
   }
 });
 
