@@ -3,6 +3,7 @@ import './styling/QueryPosts.css';
 
 export default function QueryPosts() {
   const [posts, setPosts] = useState([]);
+  const [users, setUsers] = useState([]);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [loading, setLoading] = useState(false);
   const [socialMediaPlatforms, setSocialMediaPlatforms] = useState([]);
@@ -17,6 +18,7 @@ export default function QueryPosts() {
 
   useEffect(() => {
     fetchSocialMediaPlatforms();
+    fetchUsers();
   }, []);
 
   const fetchSocialMediaPlatforms = async () => {
@@ -25,6 +27,17 @@ export default function QueryPosts() {
       if (!response.ok) throw new Error('Failed to fetch social media platforms');
       const data = await response.json();
       setSocialMediaPlatforms(data);
+    } catch (error) {
+      setMessage({ text: error.message, type: 'error' });
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/users');
+      if (!response.ok) throw new Error('Failed to fetch users');
+      const data = await response.json();
+      setUsers(data);
     } catch (error) {
       setMessage({ text: error.message, type: 'error' });
     }
@@ -198,7 +211,6 @@ export default function QueryPosts() {
         </div>
       </div>
 
-      {/* Posts Section */}
       {posts.length > 0 && (
         <div className="results-container">
           <h2 className="section-title">Posts</h2>
@@ -209,8 +221,11 @@ export default function QueryPosts() {
               <p className="post-text">{post.content}</p>
 
               <p className="post-info">
-                {post.media_name} | {post.username} | {new Date(post.post_time).toLocaleString()}
-                {post.multimedia && ` | Multimedia: ${post.multimedia}`}
+                {post.media_name && <span>{post.media_name}</span>}
+                {post.username && <span> | {post.username}</span>}
+                {post.post_time && <span> | {new Date(post.post_time).toLocaleString()}</span>}
+                {post.multimedia && <span> | Multimedia: {post.multimedia}</span>}
+                {post.is_repost === 1 && <span> | Repost: yes</span>}
               </p>
 
               {post.project_name && (
@@ -220,23 +235,27 @@ export default function QueryPosts() {
                 </div>
               )}
 
-              {(post.likes || post.dislikes) && (
+              {(post.likes > 0 || post.dislikes > 0) && (
                 <div className="engagement">
                   {post.likes > 0 && <span>Likes: {post.likes}</span>}
                   {post.dislikes > 0 && <span> Dislikes: {post.dislikes}</span>}
                 </div>
               )}
 
-              {post.city && (
+              {(post.city || post.state_name || post.country) && (
                 <div className="location">
-                  <p>📍 {post.city}{post.state_name ? `, ${post.state_name}` : ''}{post.country ? `, ${post.country}` : ''}</p>
+                  <p>
+                    📍 {post.city || ''}
+                    {post.state_name ? `, ${post.state_name}` : ''}
+                    {post.country ? `, ${post.country}` : ''}
+                  </p>
                 </div>
               )}
             </div>
           ))}
         </div>
       )}
-      
+
       {posts.length === 0 && !loading && !message.text && (
         <p className="no-results">Enter search criteria and click Search to find posts.</p>
       )}

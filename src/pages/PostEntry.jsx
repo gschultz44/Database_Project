@@ -287,15 +287,6 @@ export default function PostEntry() {
       <h1 className="hero-title" style={{ color: 'black' }}>Add a Post</h1>
       <div className="space-y-4">
         <div className="form-group">
-          <label>
-            <input
-              type="checkbox"
-              name="isRepost"
-              checked={post.isRepost}
-              onChange={handleChange}
-            />
-            &nbsp;Is this a repost?
-          </label>
         </div>
 
         {message.text && (
@@ -349,16 +340,18 @@ export default function PostEntry() {
         </div>
 
         <div className="form-group">
-          <label>Post Datetime<span className="required-asterisk">*</span></label>
-          <input
-            type="datetime-local"
-            name="postDatetime"
-            value={post.postDatetime}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
-        </div>
+          <label>Post Datetime<span className="required-asterisk">*</span></label>
+          <input
+            type="datetime-local"
+            name="postDatetime"
+            value={post.postDatetime}
+            onChange={handleChange}
+            required
+            className="input-field"
+            step="1"
+          />
+          {/* <small className="form-hint">Format: YYYY-MM-DD HH:MM:SS</small> */}
+        </div>
 
         {post.isRepost && (
           <>

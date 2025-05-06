@@ -316,8 +316,11 @@ export default function QueryProjects() {
               <p className="post-text">{post.content}</p>
 
               <p className="post-info">
-                {post.media_name} | {post.username} | {new Date(post.post_time).toLocaleString()}
-                {post.multimedia && ` | Multimedia: ${post.multimedia}`}
+                {post.media_name && <span>{post.media_name}</span>}
+                {post.username && <span> | {post.username}</span>}
+                {post.post_time && <span> | {new Date(post.post_time).toLocaleString()}</span>}
+                {post.multimedia && <span> | Multimedia: {post.multimedia}</span>}
+                {post.is_repost === 1 && <span> | Repost: yes</span>}
               </p>
 
               {post.project_name && (
@@ -327,23 +330,26 @@ export default function QueryProjects() {
                 </div>
               )}
 
-              {(post.likes || post.dislikes) && (
+              {(post.likes > 0 || post.dislikes > 0) && (
                 <div className="engagement">
                   {post.likes > 0 && <span>Likes: {post.likes}</span>}
                   {post.dislikes > 0 && <span> Dislikes: {post.dislikes}</span>}
                 </div>
               )}
 
-              {post.city && (
+              {(post.city || post.state_name || post.country) && (
                 <div className="location">
-                  <p>📍 {post.city}{post.state_name ? `, ${post.state_name}` : ''}{post.country ? `, ${post.country}` : ''}</p>
+                  <p>
+                    📍 {post.city || ''}
+                    {post.state_name ? `, ${post.state_name}` : ''}
+                    {post.country ? `, ${post.country}` : ''}
+                  </p>
                 </div>
               )}
             </div>
           ))}
         </div>
       )}
-
       
       {posts.length === 0 && !loading && !message.text && (
         <p className="no-results">Enter search criteria and click Search to find posts.</p>

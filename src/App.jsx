@@ -4,6 +4,7 @@ import './App.css';
 import ProjectEntry from './pages/ProjectEntry';
 import PostEntry from './pages/PostEntry';
 import UserEntry from './pages/UserEntry';
+import RepostEntry from './pages/RepostEntry';
 import FieldEntry from './pages/FieldEntry';
 import AnalysisEntry from './pages/AnalysisEntry';
 import QueryPosts from './pages/QueryPosts';
@@ -61,11 +62,12 @@ function App() {
                 <div className="feature-card" onClick={() => toggleMenu('dataEntry')}>
                   <div className="feature-icon">📝</div>
                   <h3 className="feature-title">Data Entry</h3>
-                  <p>Create projects, record posts, and enter analysis results</p>
+                  <p>Create users, posts, projects, and corresponding analyses</p>
                   {dataEntryMenuOpen && (
                     <div id="dataEntryMenu" className="submenu">
                       <button onClick={() => navigateTo('userEntry')} className="submenu-item">User</button>
                       <button onClick={() => navigateTo('postEntry')} className="submenu-item">Post</button>
+                      <button onClick={() => navigateTo('repostEntry')} className="submenu-item">Repost</button>
                       <button onClick={() => navigateTo('projectEntry')} className="submenu-item">Project</button>
                       <button onClick={() => navigateTo('fieldEntry')} className="submenu-item">Field</button>
                       <button onClick={() => navigateTo('analysisEntry')} className="submenu-item">Analysis</button>
@@ -75,7 +77,7 @@ function App() {
                 <div className="feature-card" onClick={() => toggleMenu('query')}>
                   <div className="feature-icon">🔍</div>
                   <h3 className="feature-title">Advanced Queries</h3>
-                  <p>Search posts by platform, time period, or user information</p>
+                  <p>Search posts and projects by platform, time period, and user information</p>
                   {queryMenuOpen && (
                     <div id="queryMenu" className="submenu">
                       <button onClick={() => navigateTo('postQuery')} className="submenu-item">Posts</button>
@@ -98,6 +100,8 @@ function App() {
         return <PostEntry />;
       case 'userEntry':
         return <UserEntry />;
+      case 'repostEntry':
+        return <RepostEntry />;
       case 'fieldEntry':
         return <FieldEntry />;
       case 'analysisEntry':
