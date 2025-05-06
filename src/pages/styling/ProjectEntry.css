@@ -48,4 +48,10 @@
 .btn-primary:hover {
   background-color: #1c71ff;
 }
+
+.required-label::after {
+  content: " *";
+  color: red;
+}
+
   

@@ -16,6 +16,7 @@ export default function UserEntry() {
     gender: '',
     is_verified: false
   });
+  const [fieldErrors, setFieldErrors] = useState({});
   const [message, setMessage] = useState({ text: '', type: '' });
   const [loading, setLoading] = useState(false);
 
@@ -29,23 +30,32 @@ export default function UserEntry() {
 
   const fetchUsers = async () => {
     try {
+      setLoading(true);
       const response = await fetch('http://localhost:3000/api/users');
-      if (!response.ok) throw new Error('Failed to fetch users');
+      if (!response.ok) throw new Error('Unable to connect to the user database. Please try again later.');
       const data = await response.json();
       setUsers(data);
     } catch (error) {
-      setMessage({ text: error.message, type: 'error' });
+      setMessage({ 
+        text: error.message || 'Network error while loading users. Please check your connection.', 
+        type: 'error' 
+      });
+    } finally {
+      setLoading(false);
     }
   };
   
   const fetchSocialMediaPlatforms = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/socialmedia');
-      if (!response.ok) throw new Error('Failed to fetch social media platforms');
+      if (!response.ok) throw new Error('Unable to load social media platforms. Please try again later.');
       const data = await response.json();
       setSocialMediaPlatforms(data);
     } catch (error) {
-      setMessage({ text: error.message, type: 'error' });
+      setMessage({ 
+        text: error.message || 'Network error while loading platforms. Please check your connection.', 
+        type: 'error' 
+      });
     }
   };
 
@@ -65,6 +75,13 @@ export default function UserEntry() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    // Clear validation error when field is being edited
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: ''
+    }));
+    
     setNewUser(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -76,35 +93,77 @@ export default function UserEntry() {
     return !newUser.age || (!isNaN(num) && num >= 0 && num <= 150);
   };
 
+  const validateForm = () => {
+    const errors = {};
+    let isValid = true;
+    
+    // Username validation
+    if (!newUser.username.trim()) {
+      errors.username = 'Username is required';
+      isValid = false;
+    } else if (newUser.username.length > 50) {
+      errors.username = 'Username cannot exceed 50 characters';
+      isValid = false;
+    }
+
+    // Social Media Platform validation
+    if (!newUser.media_name.trim()) {
+      errors.media_name = 'Please select a social media platform';
+      isValid = false;
+    }
+
+    // First Name validation
+    if (!newUser.first_name.trim()) {
+      errors.first_name = 'First name is required';
+      isValid = false;
+    }
+
+    // Last Name validation
+    if (!newUser.last_name.trim()) {
+      errors.last_name = 'Last name is required';
+      isValid = false;
+    }
+
+    // Age validation
+    if (newUser.age && !validateAge()) {
+      errors.age = 'Age must be between 0 and 150';
+      isValid = false;
+    }
+
+    // Birth Country validation
+    if (newUser.birth_country === "Other" && !newUser.other_birth_country.trim()) {
+      errors.other_birth_country = 'Please specify your birth country';
+      isValid = false;
+    }
+
+    // Residence Country validation
+    if (newUser.residence_country === "Other" && !newUser.other_residence_country.trim()) {
+      errors.other_residence_country = 'Please specify your residence country';
+      isValid = false;
+    }
+
+    setFieldErrors(errors);
+    return isValid;
+  };
+
   const handleSubmit = async () => {
     if (loading) return;
+    
+    // Clear previous messages
+    setMessage({ text: '', type: '' });
+    
+    // Validate form
+    if (!validateForm()) {
+      setMessage({ 
+        text: 'Please correct the error(s) before submitting.', 
+        type: 'error' 
+      });
+      return;
+    }
+    
     setLoading(true);
     
     try {
-      // Validate required fields
-      if (!newUser.username.trim()) {
-        throw new Error('Username is required');
-      }
-
-      // Social Media site must be choosen
-      if (!newUser.media_name.trim()) {
-        throw new Error('Social Media is required');
-      }
-
-      // Age validation
-      if (!validateAge()) {
-        throw new Error('Please enter a valid age (0-150) if provided');
-      }
-
-      // Validate "Other" country selections
-      if (newUser.birth_country === "Other" && !newUser.other_birth_country) {
-        throw new Error('Please specify your Country of Birth');
-      }
-
-      if (newUser.residence_country === "Other" && !newUser.other_residence_country) {
-        throw new Error('Please specify your Country of Residence');
-      }
-      
       // Prepare user data for submission
       const userToSubmit = {
         username: newUser.username.trim(),
@@ -132,10 +191,22 @@ export default function UserEntry() {
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add user');
+        
+        // Handle specific error cases from the server
+        if (errorData.code === 'DUPLICATE_USER') {
+          throw new Error(`Username "${newUser.username}" already exists on ${newUser.media_name}. Please choose another username.`);
+        } else if (errorData.code === 'INVALID_PLATFORM') {
+          throw new Error(`The selected social media platform is no longer available. Please refresh and try again.`);
+        } else {
+          throw new Error(errorData.error || 'Unable to create user account. Please try again later.');
+        }
       }
       
-      setMessage({ text: 'User added successfully!', type: 'success' });
+      setMessage({ 
+        text: `Success! User "${newUser.username}" has been added to the system.`, 
+        type: 'success' 
+      });
+      
       setNewUser({
         username: '',
         media_name: '',
@@ -156,7 +227,7 @@ export default function UserEntry() {
       // Clear success message after 3 seconds
       setTimeout(() => {
         setMessage({ text: '', type: '' });
-      }, 3000);
+      }, 5000);
       
     } catch (error) {
       setMessage({ text: error.message, type: 'error' });
@@ -176,7 +247,7 @@ export default function UserEntry() {
       )}
       
       <div className="space-y-4">
-        <div className="form-group">
+        <div className={`form-group ${fieldErrors.username ? 'has-error' : ''}`}>
           <label htmlFor="username">Username<span className="required-asterisk">*</span></label>
           <input
             type="text"
@@ -185,12 +256,13 @@ export default function UserEntry() {
             value={newUser.username}
             onChange={handleChange}
             required
-            className="input-field"
+            className={`input-field ${fieldErrors.username ? 'error-input' : ''}`}
             placeholder="Enter Username"
           />
+          {fieldErrors.username && <div className="error-text">{fieldErrors.username}</div>}
         </div>
         
-        <div className="form-group">
+        <div className={`form-group ${fieldErrors.media_name ? 'has-error' : ''}`}>
           <label htmlFor="media_name">Social Media Platform<span className="required-asterisk">*</span></label>
           <select
             id="media_name"
@@ -198,7 +270,7 @@ export default function UserEntry() {
             value={newUser.media_name}
             onChange={handleChange}
             required
-            className="input-field"
+            className={`input-field ${fieldErrors.media_name ? 'error-input' : ''}`}
           >
             <option value="">Select a platform</option>
             {socialMediaPlatforms.map(platform => (
@@ -207,9 +279,10 @@ export default function UserEntry() {
               </option>
             ))}
           </select>
+          {fieldErrors.media_name && <div className="error-text">{fieldErrors.media_name}</div>}
         </div>
         
-        <div className="form-group">
+        <div className={`form-group ${fieldErrors.first_name ? 'has-error' : ''}`}>
           <label htmlFor="first_name">First Name<span className="required-asterisk">*</span></label>
           <input
             type="text"
@@ -217,13 +290,14 @@ export default function UserEntry() {
             name="first_name"
             value={newUser.first_name}
             onChange={handleChange}
-            className="input-field"
+            className={`input-field ${fieldErrors.first_name ? 'error-input' : ''}`}
             required
             placeholder="Enter First Name"
           />
+          {fieldErrors.first_name && <div className="error-text">{fieldErrors.first_name}</div>}
         </div>
         
-        <div className="form-group">
+        <div className={`form-group ${fieldErrors.last_name ? 'has-error' : ''}`}>
           <label htmlFor="last_name">Last Name<span className="required-asterisk">*</span></label>
           <input
             type="text"
@@ -231,10 +305,11 @@ export default function UserEntry() {
             name="last_name"
             value={newUser.last_name}
             onChange={handleChange}
-            className="input-field"
+            className={`input-field ${fieldErrors.last_name ? 'error-input' : ''}`}
             required
             placeholder="Enter Last Name"
           />
+          {fieldErrors.last_name && <div className="error-text">{fieldErrors.last_name}</div>}
         </div>
         
         <div className="form-group">
@@ -254,7 +329,7 @@ export default function UserEntry() {
             ))}
           </select>
           {newUser.birth_country === "Other" && (
-            <div className="form-group">
+            <div className={`form-group ${fieldErrors.other_birth_country ? 'has-error' : ''}`}>
               <label htmlFor="other_birth_country">Specify Country of Birth<span className="required-asterisk">*</span></label>
               <input
                 type="text"
@@ -263,9 +338,10 @@ export default function UserEntry() {
                 value={newUser.other_birth_country}
                 onChange={handleChange}
                 required
-                className="input-field"
+                className={`input-field ${fieldErrors.other_birth_country ? 'error-input' : ''}`}
                 placeholder="Enter Country"
               />
+              {fieldErrors.other_birth_country && <div className="error-text">{fieldErrors.other_birth_country}</div>}
             </div>
           )}
         </div>
@@ -287,7 +363,7 @@ export default function UserEntry() {
             ))}
           </select>
           {newUser.residence_country === "Other" && (
-            <div className="form-group">
+            <div className={`form-group ${fieldErrors.other_residence_country ? 'has-error' : ''}`}>
               <label htmlFor="other_residence_country">Specify Country of Residence<span className="required-asterisk">*</span></label>
               <input
                 type="text"
@@ -296,14 +372,15 @@ export default function UserEntry() {
                 value={newUser.other_residence_country}
                 onChange={handleChange}
                 required
-                className="input-field"
+                className={`input-field ${fieldErrors.other_residence_country ? 'error-input' : ''}`}
                 placeholder="Enter Country"
               />
+              {fieldErrors.other_residence_country && <div className="error-text">{fieldErrors.other_residence_country}</div>}
             </div>
           )}
         </div>
         
-        <div className="form-group">
+        <div className={`form-group ${fieldErrors.age ? 'has-error' : ''}`}>
           <label htmlFor="age">Age</label>
           <input
             type="number"
@@ -313,9 +390,10 @@ export default function UserEntry() {
             onChange={handleChange}
             min="0"
             max="150"
-            className="input-field"
+            className={`input-field ${fieldErrors.age ? 'error-input' : ''}`}
             placeholder="Enter Age"
           />
+          {fieldErrors.age && <div className="error-text">{fieldErrors.age}</div>}
         </div>
         
         <div className="form-group">
@@ -360,7 +438,9 @@ export default function UserEntry() {
       <div className="table-section">
         <h2>Existing Users</h2>
         
-        {users.length > 0 ? (
+        {loading && <div className="loading-indicator">Loading users...</div>}
+        
+        {!loading && users.length > 0 ? (
           <table className="data-table">
             <thead>
               <tr>
@@ -389,9 +469,9 @@ export default function UserEntry() {
               ))}
             </tbody>
           </table>
-        ) : (
-          <p>No users found. Add your first user above.</p>
-        )}
+        ) : !loading ? (
+          <p className="empty-state">No users found. Add your first user above.</p>
+        ) : null}
       </div>
     </div>
   );

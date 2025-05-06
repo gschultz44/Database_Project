@@ -45,7 +45,10 @@ export default function PostEntry() {
       const data = await response.json();
       setSocialMediaPlatforms(data);
     } catch (error) {
-      setMessage({ text: error.message, type: 'error' });
+      setMessage({ 
+        text: "Unable to load social media platforms. Please refresh the page or try again later.", 
+        type: 'error' 
+      });
     }
   };
 
@@ -56,7 +59,10 @@ export default function PostEntry() {
       const data = await response.json();
       setProjects(data);
     } catch (error) {
-      setMessage({ text: error.message, type: 'error' });
+      setMessage({ 
+        text: "Unable to load project list. Please refresh the page or try again later.", 
+        type: 'error' 
+      });
     }
   };
 
@@ -72,7 +78,10 @@ export default function PostEntry() {
       const data = await response.json();
       setFilteredFields(data);
     } catch (error) {
-      setMessage({ text: error.message, type: 'error' });
+      setMessage({ 
+        text: `Unable to load fields for project "${projectName}". Please select a different project or try again later.`, 
+        type: 'error' 
+      });
       setFilteredFields([]);
     }
   };
@@ -114,14 +123,20 @@ export default function PostEntry() {
       const users = await response.json();
       const userExists = users.some(user => user.username === username);
       if (!userExists) {
-        alert("User not found.");
+        setMessage({ 
+          text: `Username "${username}" does not exist in our system. Please check spelling or create this user first.`, 
+          type: 'error' 
+        });
         return false;
       }
       console.log("User authenticated. Creating post...");
       return true;
     } catch (error) {
       console.error("Error checking user existence:", error);
-      alert("Failed to validate user.");
+      setMessage({ 
+        text: "Unable to validate username. The server may be unavailable. Please try again later.", 
+        type: 'error' 
+      });
       return false;
     }
   };
@@ -152,38 +167,72 @@ export default function PostEntry() {
       postContent: postContent.trim()
     };
 
-    if (!trimmedPostData.platform || !trimmedPostData.username || !trimmedPostData.postDatetime || !trimmedPostData.postContent) {
-      setMessage({ text: "Please fill out required fields: Platform, Username, Post DateTime, and Post Content.", type: 'error' });
+    // Validation checks with improved error messages
+    if (!trimmedPostData.platform) {
+      setMessage({ text: "Please select a social media platform from the dropdown menu.", type: 'error' });
+      return;
+    }
+    
+    if (!trimmedPostData.username) {
+      setMessage({ text: "Username field cannot be empty. Please enter the account username.", type: 'error' });
+      return;
+    }
+    
+    if (!trimmedPostData.postDatetime) {
+      setMessage({ text: "Post date and time is required. Please select when this post was created.", type: 'error' });
+      return;
+    }
+    
+    if (!trimmedPostData.postContent) {
+      setMessage({ text: "Post content cannot be empty. Please enter what was shared in this post.", type: 'error' });
       return;
     }
 
-    if (trimmedPostData.username.length > 40 || (isRepost && trimmedPostData.repostUsername.length > 40)) {
-      setMessage({ text: "Username must be at most 40 characters.", type: 'error' });
+    if (trimmedPostData.username.length > 40) {
+      setMessage({ text: "Username is too long. Please use a maximum of 40 characters.", type: 'error' });
+      return;
+    }
+    
+    if (isRepost && trimmedPostData.repostUsername.length > 40) {
+      setMessage({ text: "Original poster's username is too long. Please use a maximum of 40 characters.", type: 'error' });
       return;
     }
 
-    if (!validateDatetime() || !validateRepostDatetime()) {
-      setMessage({ text: "Please enter valid datetime values.", type: 'error' });
+    if (!validateDatetime()) {
+      setMessage({ text: "The post date/time format is invalid. Please use the date picker or enter in YYYY-MM-DD HH:MM:SS format.", type: 'error' });
+      return;
+    }
+    
+    if (!validateRepostDatetime()) {
+      setMessage({ text: "The repost date/time format is invalid. Please use the date picker or enter in YYYY-MM-DD HH:MM:SS format.", type: 'error' });
       return;
     }
 
-    if ((trimmedPostData.likes && (isNaN(trimmedPostData.likes) || trimmedPostData.likes < 0)) ||
-        (trimmedPostData.dislikes && (isNaN(trimmedPostData.dislikes) || trimmedPostData.dislikes < 0))) {
-      setMessage({ text: "Likes and Dislikes must be non-negative numbers.", type: 'error' });
+    if (trimmedPostData.likes && (isNaN(trimmedPostData.likes) || trimmedPostData.likes < 0)) {
+      setMessage({ text: "Likes must be a positive number (or zero). Please correct this value.", type: 'error' });
+      return;
+    }
+    
+    if (trimmedPostData.dislikes && (isNaN(trimmedPostData.dislikes) || trimmedPostData.dislikes < 0)) {
+      setMessage({ text: "Dislikes must be a positive number (or zero). Please correct this value.", type: 'error' });
       return;
     }
 
     if (trimmedPostData.city && !trimmedPostData.stateName) {
-      setMessage({ text: "If you enter a city, you must also select a state.", type: 'error' });
+      setMessage({ text: "You've entered a city but no state. Please select a state from the dropdown menu.", type: 'error' });
       return;
     }
 
     if (trimmedPostData.country === "Other" && !trimmedPostData.otherCountry) {
-      setMessage({ text: "Please enter a valid country name.", type: 'error' });
+      setMessage({ text: "You selected 'Other' for country but didn't specify which one. Please enter the country name.", type: 'error' });
       return;
     }
 
     try {
+      // Check if user exists before submitting
+      const userValid = await validateUserExistence(trimmedPostData.username);
+      if (!userValid) return;
+      
       // Prepare post data to exactly match what the API expects
       const postBody = {
         username: trimmedPostData.username,
@@ -215,7 +264,7 @@ export default function PostEntry() {
       });
 
       if (response.ok) {
-        setMessage({ text: "Post submitted successfully!", type: 'success' });
+        setMessage({ text: "Post submitted successfully! Your entry has been added to the database.", type: 'success' });
         setPost({
           platform: "",
           username: "",
@@ -237,14 +286,23 @@ export default function PostEntry() {
         
         setTimeout(() => {
           setMessage({ text: '', type: '' });
-        }, 3000);
+        }, 5000);
       } else {
         const errorData = await response.json();
-        setMessage({ text: errorData.error || "Failed to submit post.", type: 'error' });
+        if (errorData.error && errorData.error.includes("duplicate")) {
+          setMessage({ text: "This post already exists in our database. Please check if you're submitting a duplicate.", type: 'error' });
+        } else if (errorData.error && errorData.error.includes("foreign key")) {
+          setMessage({ text: "Database relationship error. One of your selections (user, platform, project, or field) doesn't exist in our system.", type: 'error' });
+        } else {
+          setMessage({ text: errorData.error || "There was a problem saving your post. Please check your entries and try again.", type: 'error' });
+        }
       }
     } catch (error) {
       console.error("Error submitting post:", error);
-      setMessage({ text: "An error occurred while submitting the post.", type: 'error' });
+      setMessage({ 
+        text: "Network or server error. Please check your internet connection and try again in a few moments.", 
+        type: 'error' 
+      });
     }
   };
 
@@ -254,7 +312,7 @@ export default function PostEntry() {
       isRepost: true,
       repostUsername: originalUsername 
     }));
-    alert("Reposting original post...");
+    setMessage({ text: "Repost mode activated. Please fill in details about the original post.", type: 'info' });
   };
 
   const handleChange = (e) => {
@@ -276,6 +334,19 @@ export default function PostEntry() {
         [name]: type === 'checkbox' ? checked : value
       }));
     }
+  };
+
+  // Format current datetime with seconds for default value
+  const getCurrentDateTimeWithSeconds = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
   };
 
   return (
@@ -311,6 +382,7 @@ export default function PostEntry() {
             className="input-field"
             placeholder="Account Username"
           />
+          {/* <small className="form-hint">Username must exist in the system and be 40 characters or less</small> */}
         </div>
 
         <div className="form-group">
@@ -353,32 +425,37 @@ export default function PostEntry() {
             onChange={handleChange}
             required
             className="input-field"
+            step="1"
           />
+          {/* <small className="form-hint">Format: YYYY-MM-DD HH:MM:SS</small> */}
         </div>
 
         {post.isRepost && (
           <>
             <div className="form-group">
-              <label>Repost Username</label>
+              <label>Original Poster's Username</label>
               <input
                 name="repostUsername"
                 value={post.repostUsername}
                 onChange={handleChange}
                 maxLength={40}
                 className="input-field"
-                placeholder="Username who reposted"
+                placeholder="Username of the original poster"
               />
+              <small className="form-hint">Enter who originally created this content</small>
             </div>
 
             <div className="form-group">
-              <label>Repost Datetime</label>
+              <label>Original Post Datetime</label>
               <input
                 type="datetime-local"
                 name="repostDatetime"
                 value={post.repostDatetime}
                 onChange={handleChange}
                 className="input-field"
+                step="1"
               />
+              <small className="form-hint">When was the original post created?</small>
             </div>
           </>
         )}
@@ -392,6 +469,7 @@ export default function PostEntry() {
             className="input-field"
             placeholder="City (optional)"
           />
+          {/* <small className="form-hint">If specifying city, state is also required</small> */}
         </div>
 
         <div className="form-group">
@@ -451,7 +529,9 @@ export default function PostEntry() {
             onChange={handleChange}
             className="input-field"
             placeholder="Number of Likes (optional)"
+            min="0"
           />
+          {/* <small className="form-hint">Must be a positive number</small> */}
         </div>
 
         <div className="form-group">
@@ -463,7 +543,9 @@ export default function PostEntry() {
             onChange={handleChange}
             className="input-field"
             placeholder="Number of Dislikes (optional)"
+            min="0"
           />
+          {/* <small className="form-hint">Must be a positive number</small> */}
         </div>
 
         <div className="form-group">
@@ -478,6 +560,7 @@ export default function PostEntry() {
             <option value="yes">Yes</option>
             <option value="no">No</option>
           </select>
+          {/* <small className="form-hint">Does this post contain images, videos, or audio?</small> */}
         </div>
 
         <div className="form-group">

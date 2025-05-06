@@ -61,7 +61,7 @@ function App() {
                 <div className="feature-card" onClick={() => toggleMenu('dataEntry')}>
                   <div className="feature-icon">📝</div>
                   <h3 className="feature-title">Data Entry</h3>
-                  <p>Create projects, record posts, and enter analysis results</p>
+                  <p>Create users, posts, projects, and corresponding analyses</p>
                   {dataEntryMenuOpen && (
                     <div id="dataEntryMenu" className="submenu">
                       <button onClick={() => navigateTo('userEntry')} className="submenu-item">User</button>
@@ -75,7 +75,7 @@ function App() {
                 <div className="feature-card" onClick={() => toggleMenu('query')}>
                   <div className="feature-icon">🔍</div>
                   <h3 className="feature-title">Advanced Queries</h3>
-                  <p>Search posts by platform, time period, or user information</p>
+                  <p>Search posts and projects by platform, time period, and user information</p>
                   {queryMenuOpen && (
                     <div id="queryMenu" className="submenu">
                       <button onClick={() => navigateTo('postQuery')} className="submenu-item">Posts</button>

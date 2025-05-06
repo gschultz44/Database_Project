@@ -24,7 +24,10 @@ export default function ProjectEntry() {
       const data = await response.json();
       setProjects(data);
     } catch (error) {
-      setMessage({ text: error.message, type: 'error' });
+      setMessage({ 
+        text: "Unable to load existing projects. Please refresh the page or try again later.", 
+        type: 'error' 
+      });
     }
   };
 
@@ -40,6 +43,28 @@ export default function ProjectEntry() {
     return !isNaN(end.getTime());
   };
 
+  const validateDates = () => {
+    if (!validateStartDate()) {
+      setMessage({ text: "Please enter a valid start date.", type: 'error' });
+      return false;
+    }
+    
+    if (!validateEndDate()) {
+      setMessage({ text: "Please enter a valid end date.", type: 'error' });
+      return false;
+    }
+    
+    if (new Date(endDate) < new Date(startDate)) {
+      setMessage({ 
+        text: "End date cannot be before start date. Please adjust your project timeline.", 
+        type: 'error' 
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     const trimmedProjectName = projectName.trim();
@@ -48,14 +73,45 @@ export default function ProjectEntry() {
     const trimmedProjectManagerLast = projectManagerLast.trim();
     const trimmedInstitute = institute.trim();
 
-    if (!trimmedProjectName || !trimmedProjectManagerFirst || !trimmedProjectManagerLast || !trimmedInstitute || !startDate || !endDate) {
-      setMessage({ text: "Please fill out all required fields.", type: 'error' });
+    // Check required fields with specific messages for each field
+    if (!trimmedProjectName) {
+      setMessage({ text: "Project name is required. Please enter a name for this project.", type: 'error' });
+      setLoading(false);
+      return;
+    }
+    
+    if (!trimmedProjectManagerFirst) {
+      setMessage({ text: "Project manager's first name is required.", type: 'error' });
+      setLoading(false);
+      return;
+    }
+    
+    if (!trimmedProjectManagerLast) {
+      setMessage({ text: "Project manager's last name is required.", type: 'error' });
+      setLoading(false);
+      return;
+    }
+    
+    if (!trimmedInstitute) {
+      setMessage({ text: "Institute name is required. Please enter the affiliated institution.", type: 'error' });
+      setLoading(false);
+      return;
+    }
+    
+    if (!startDate) {
+      setMessage({ text: "Start date is required. Please select when this project begins.", type: 'error' });
+      setLoading(false);
+      return;
+    }
+    
+    if (!endDate) {
+      setMessage({ text: "End date is required. Please select when this project concludes.", type: 'error' });
       setLoading(false);
       return;
     }
 
-    if (validateStartDate() && validateEndDate() && new Date(endDate) < new Date(startDate)) {
-      setMessage({ text: "Please enter valid dates.", type: 'error' });
+    // Validate date relationship
+    if (!validateDates()) {
       setLoading(false);
       return;
     }
@@ -78,7 +134,12 @@ export default function ProjectEntry() {
       });
 
       if (response.ok) {
-        setMessage({ text: "Project submitted successfully!", type: 'success' });
+        setMessage({ 
+          text: `Project "${trimmedProjectName}" has been successfully added to the database!`, 
+          type: 'success' 
+        });
+        
+        // Clear form fields
         setProjectName("");
         setProjectDescription("");
         setProjectManagerFirst("");
@@ -86,38 +147,60 @@ export default function ProjectEntry() {
         setInstitute("");
         setStartDate("");
         setEndDate("");
-        
-        // Refresh the projects list
+
+        // Refresh project list
         fetchProjects();
-        
+
         setTimeout(() => {
           setMessage({ text: '', type: '' });
-        }, 3000);
+        }, 5000);
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add project');
+        
+        // Handle specific error scenarios
+        if (errorData.error && errorData.error.includes("duplicate")) {
+          throw new Error(`A project named "${trimmedProjectName}" already exists. Please use a different name.`);
+        } else if (errorData.error && errorData.error.includes("foreign key")) {
+          throw new Error("Database relationship error. Please check that all referenced data exists.");
+        } else {
+          throw new Error(errorData.error || 'Failed to add project');
+        }
       }
     } catch (error) {
       console.error("Error submitting project:", error);
-      setMessage({ text: error.message || "An error occurred while submitting the project.", type: 'error' });
+      setMessage({ 
+        text: error.message || "An unexpected error occurred while submitting the project. Please try again.", 
+        type: 'error' 
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  // Get current date in YYYY-MM-DD format for min attribute
+  const getCurrentDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   return (
     <div className="page-container">
       <h1 className="hero-title" style={{ color: 'black' }}>Add a Project</h1>
-      
+
       {message.text && (
         <div className={`message ${message.type}`}>
           {message.text}
         </div>
       )}
-      
+
       <div className="space-y-4">
         <div className="form-group">
-          <label htmlFor="project_name">Project Name *</label>
+          <label htmlFor="project_name">
+            Project Name <span className="required-asterisk">*</span>
+          </label>
           <input
             id="project_name"
             value={projectName}
@@ -125,7 +208,9 @@ export default function ProjectEntry() {
             required
             className="input-field"
             placeholder="Enter Project Name"
+            maxLength={100}
           />
+          {/* <small className="form-hint">Enter a unique name that clearly identifies this project</small> */}
         </div>
 
         <div className="form-group">
@@ -138,10 +223,13 @@ export default function ProjectEntry() {
             placeholder="Enter project description (Optional)"
             rows="4"
           />
+          {/* <small className="form-hint">Brief overview of the project's goals and scope</small> */}
         </div>
-        
+
         <div className="form-group">
-          <label htmlFor="project_manager_first">Project Manager First Name *</label>
+          <label htmlFor="project_manager_first">
+            Project Manager First Name <span className="required-asterisk">*</span>
+          </label>
           <input
             id="project_manager_first"
             value={projectManagerFirst}
@@ -149,11 +237,14 @@ export default function ProjectEntry() {
             required
             className="input-field"
             placeholder="Enter First Name"
+            maxLength={50}
           />
         </div>
-        
+
         <div className="form-group">
-          <label htmlFor="project_manager_last">Project Manager Last Name *</label>
+          <label htmlFor="project_manager_last">
+            Project Manager Last Name <span className="required-asterisk">*</span>
+          </label>
           <input
             id="project_manager_last"
             value={projectManagerLast}
@@ -161,11 +252,14 @@ export default function ProjectEntry() {
             required
             className="input-field"
             placeholder="Enter Last Name"
+            maxLength={50}
           />
         </div>
-        
+
         <div className="form-group">
-          <label htmlFor="institute">Institute *</label>
+          <label htmlFor="institute">
+            Institute <span className="required-asterisk">*</span>
+          </label>
           <input
             id="institute"
             value={institute}
@@ -173,11 +267,15 @@ export default function ProjectEntry() {
             required
             className="input-field"
             placeholder="Enter Institute"
+            maxLength={100}
           />
+          {/* <small className="form-hint">Name of the affiliated institution or organization</small> */}
         </div>
-        
+
         <div className="form-group">
-          <label htmlFor="start_date">Start Date *</label>
+          <label htmlFor="start_date">
+            Start Date <span className="required-asterisk">*</span>
+          </label>
           <input
             id="start_date"
             type="date"
@@ -186,10 +284,13 @@ export default function ProjectEntry() {
             required
             className="input-field"
           />
+          {/* <small className="form-hint">When does the project begin?</small> */}
         </div>
-        
+
         <div className="form-group">
-          <label htmlFor="end_date">End Date *</label>
+          <label htmlFor="end_date">
+            End Date <span className="required-asterisk">*</span>
+          </label>
           <input
             id="end_date"
             type="date"
@@ -197,9 +298,11 @@ export default function ProjectEntry() {
             onChange={(e) => setEndDate(e.target.value)}
             required
             className="input-field"
+            min={startDate || getCurrentDate()}
           />
+          {/* <small className="form-hint">When is the project scheduled to conclude?</small> */}
         </div>
-        
+
         <div className="form-group">
           <button
             onClick={handleSubmit}
@@ -210,35 +313,37 @@ export default function ProjectEntry() {
           </button>
         </div>
       </div>
-      
+
       <div className="table-section">
         <h2>Existing Projects</h2>
-        
+
         {projects.length > 0 ? (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Project Name</th>
-                <th>Project Manager</th>
-                <th>Institute</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.map((project, index) => (
-                <tr key={index}>
-                  <td>{project.project_name}</td>
-                  <td>{`${project.project_manager_first} ${project.project_manager_last}`}</td>
-                  <td>{project.institute}</td>
-                  <td>{new Date(project.start_date).toLocaleDateString()}</td>
-                  <td>{new Date(project.end_date).toLocaleDateString()}</td>
+          <div className="table-container">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Project Manager</th>
+                  <th>Institute</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {projects.map((project, index) => (
+                  <tr key={index}>
+                    <td>{project.project_name}</td>
+                    <td>{`${project.project_manager_first} ${project.project_manager_last}`}</td>
+                    <td>{project.institute}</td>
+                    <td>{new Date(project.start_date).toLocaleDateString()}</td>
+                    <td>{new Date(project.end_date).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
-          <p>No projects found. Add your first project above.</p>
+          <p className="no-data-message">No projects found. Add your first project above.</p>
         )}
       </div>
     </div>
