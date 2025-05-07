@@ -28,6 +28,7 @@ const stateOptions = [
 export default function PostEntry() {
   const [socialMediaPlatforms, setSocialMediaPlatforms] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [projectDates, setProjectDates] = useState({});
   const [fields, setFields] = useState([]);
   const [filteredFields, setFilteredFields] = useState([]);
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -54,7 +55,18 @@ export default function PostEntry() {
       const response = await fetch('http://localhost:3000/api/projects');
       if (!response.ok) throw new Error('Failed to fetch projects');
       const data = await response.json();
+      
+      // Create a map of project names to their date ranges
+      const datesMap = {};
+      data.forEach(project => {
+        datesMap[project.project_name] = {
+          start_date: project.start_date,
+          end_date: project.end_date
+        };
+      });
+      
       setProjects(data);
+      setProjectDates(datesMap);
     } catch (error) {
       setMessage({ text: error.message, type: 'error' });
     }
@@ -109,6 +121,42 @@ export default function PostEntry() {
     return !isNaN(date.getTime());
   };
 
+  const validateProjectDates = () => {
+    // If no project is selected, no need to validate project dates
+    if (!post.projectName) return true;
+    
+    const postDate = new Date(post.postDatetime);
+    const projectInfo = projectDates[post.projectName];
+    
+    if (!projectInfo) {
+      return false; // Project info not found
+    }
+    
+    // Convert project dates to Date objects
+    const startDate = new Date(projectInfo.start_date);
+    // If end_date is null, consider it as ongoing (no upper limit)
+    const endDate = projectInfo.end_date ? new Date(projectInfo.end_date) : null;
+    
+    // Check if post date is within project date range
+    if (postDate < startDate) {
+      setMessage({ 
+        text: `Post date must be after project start date (${startDate.toLocaleDateString()})`, 
+        type: 'error' 
+      });
+      return false;
+    }
+    
+    if (endDate && postDate > endDate) {
+      setMessage({ 
+        text: `Post date must be before project end date (${endDate.toLocaleDateString()})`, 
+        type: 'error' 
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
   const validateUserExistence = async (username) => {
     try {
       const response = await fetch(`http://localhost:3000/api/users`);
@@ -154,6 +202,7 @@ export default function PostEntry() {
       postContent: postContent.trim()
     };
 
+    // Basic validation
     if (!trimmedPostData.platform || !trimmedPostData.username || !trimmedPostData.postDatetime || !trimmedPostData.postContent) {
       setMessage({ text: "Please fill out required fields: Platform, Username, Post DateTime, and Post Content.", type: 'error' });
       return;
@@ -167,6 +216,11 @@ export default function PostEntry() {
     if (!validateDatetime() || !validateRepostDatetime()) {
       setMessage({ text: "Please enter valid datetime values.", type: 'error' });
       return;
+    }
+
+    // Validate project dates if a project is selected
+    if (trimmedPostData.projectName && !validateProjectDates()) {
+      return; // Error message already set in validateProjectDates
     }
 
     if ((trimmedPostData.likes && (isNaN(trimmedPostData.likes) || trimmedPostData.likes < 0)) ||
@@ -186,28 +240,23 @@ export default function PostEntry() {
     }
 
     try {
-      // Prepare post data to exactly match what the API expects
+      // Match the exact structure that the API expects based on the API endpoint code
       const postBody = {
         username: trimmedPostData.username,
         media_name: trimmedPostData.platform,
         content: trimmedPostData.postContent,
         post_time: trimmedPostData.postDatetime,
-        is_repost: trimmedPostData.isRepost,
-        
-        // Send location fields separately (not as a JSON object)
         city: trimmedPostData.city || null,
-        state_name: trimmedPostData.stateName || null, // Note: Using state_name, not state
+        state_name: trimmedPostData.stateName || null,
         country: trimmedPostData.country === "Other" ? trimmedPostData.otherCountry : trimmedPostData.country || null,
-        
         likes: trimmedPostData.likes ? parseInt(trimmedPostData.likes) : null,
         dislikes: trimmedPostData.dislikes ? parseInt(trimmedPostData.dislikes) : null,
-        multimedia: trimmedPostData.multimediaLink
-          ? `${trimmedPostData.multimediaLink}`
-          : trimmedPostData.multimedia || null,
-
-        // Match the snake_case naming in the API and database
+        multimedia: trimmedPostData.multimedia === "yes" 
+          ? trimmedPostData.multimediaLink || "yes"
+          : null,
         project_name: trimmedPostData.projectName || null,
-        field_name: trimmedPostData.fieldName || null
+        field_name: trimmedPostData.fieldName || null,
+        is_repost: trimmedPostData.isRepost || false
       };
       
       console.log("Sending post data:", postBody); // For debugging
@@ -233,6 +282,7 @@ export default function PostEntry() {
           otherCountry: "",
           likes: "",
           dislikes: "",
+          multimedia: "",
           multimediaLink: "",
           projectName: "",
           fieldName: "",
@@ -274,6 +324,20 @@ export default function PostEntry() {
       
       // Fetch fields for the selected project
       fetchFieldsByProject(value);
+      
+      // Check post date against project dates immediately for better UX
+      if (value && post.postDatetime) {
+        setTimeout(() => validateProjectDates(), 0);
+      }
+    } else if (name === "postDatetime" && post.projectName) {
+      // When post date changes and a project is selected, verify against project dates
+      setPost(prevPost => ({
+        ...prevPost,
+        [name]: value
+      }));
+      
+      // Use setTimeout to ensure state is updated before validation
+      setTimeout(() => validateProjectDates(), 0);
     } else {
       setPost(prevPost => ({
         ...prevPost,
@@ -340,18 +404,22 @@ export default function PostEntry() {
         </div>
 
         <div className="form-group">
-          <label>Post Datetime<span className="required-asterisk">*</span></label>
-          <input
-            type="datetime-local"
-            name="postDatetime"
-            value={post.postDatetime}
-            onChange={handleChange}
-            required
-            className="input-field"
-            step="1"
-          />
-          {/* <small className="form-hint">Format: YYYY-MM-DD HH:MM:SS</small> */}
-        </div>
+          <label>Post Datetime<span className="required-asterisk">*</span></label>
+          <input
+            type="datetime-local"
+            name="postDatetime"
+            value={post.postDatetime}
+            onChange={handleChange}
+            required
+            className="input-field"
+            step="1"
+          />
+          {post.projectName && (
+            <small className="form-hint">
+              Post date must be within project's date range.
+            </small>
+          )}
+        </div>
 
         {post.isRepost && (
           <>
@@ -502,7 +570,8 @@ export default function PostEntry() {
             <option value="">Select a project</option>
             {projects.map(project => (
               <option key={project.project_name} value={project.project_name}>
-                {project.project_name}
+                {project.project_name} 
+                {project.start_date && ` (${new Date(project.start_date).toLocaleDateString()} - ${project.end_date ? new Date(project.end_date).toLocaleDateString() : 'ongoing'})`}
               </option>
             ))}
           </select>
